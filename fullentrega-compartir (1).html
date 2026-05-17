@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta property="og:title" content="Fullentrega – App de gestión de entregas"/>
+<meta property="og:description" content="Gestioná tus entregas sin instalar nada. Probala gratis."/>
+<title>Fullentrega – Planes y Pagos</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080c14;
+    --card: #101624;
+    --card2: #141d2e;
+    --border: #1c2a40;
+    --orange: #ff6b2b;
+    --orange2: #ff9a5c;
+    --blue: #3b82f6;
+    --text: #eef2ff;
+    --muted: #6b7fa3;
+    --green: #22c55e;
+    --mp: #009ee3;
+    --pp2: #009cde;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 5%, rgba(255,107,43,.09) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 85% 90%, rgba(59,130,246,.07) 0%, transparent 60%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap { max-width:920px; margin:0 auto; padding:0 20px; position:relative; z-index:1; }
+
+  /* ─── NAV ─── */
+  nav {
+    position:sticky; top:0; z-index:50;
+    background:rgba(8,12,20,.85);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+
+  .nav-logo {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem;
+    background:linear-gradient(90deg,var(--orange),var(--orange2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+
+  .nav-cta {
+    background:linear-gradient(90deg,var(--orange),var(--orange2));
+    color:#fff; border:none; border-radius:10px;
+    padding:9px 20px; font-family:'Syne',sans-serif; font-size:.85rem; font-weight:700;
+    cursor:pointer; transition:opacity .2s;
+    text-decoration:none; display:inline-block;
+  }
+  .nav-cta:hover { opacity:.85; }
+
+  /* ─── HERO ─── */
+  .hero {
+    text-align:center; padding:70px 0 50px;
+  }
+
+  .pill {
+    display:inline-flex; align-items:center; gap:7px;
+    background:rgba(255,107,43,.1); border:1px solid rgba(255,107,43,.25);
+    color:var(--orange2); font-size:.75rem; font-weight:700;
+    padding:5px 16px; border-radius:100px; margin-bottom:28px;
+    letter-spacing:.6px; text-transform:uppercase;
+    animation: fadeDown .6s ease both;
+  }
+
+  .hero h1 {
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size:clamp(2.2rem,6vw,3.8rem);
+    line-height:1.05; letter-spacing:-2px; margin-bottom:20px;
+    animation: fadeDown .6s .1s ease both;
+  }
+
+  .hero h1 em {
+    font-style:normal;
+    background:linear-gradient(90deg,var(--orange),var(--orange2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+
+  .hero p {
+    color:var(--muted); font-size:1.05rem; max-width:480px;
+    margin:0 auto 36px; line-height:1.75;
+    animation: fadeDown .6s .2s ease both;
+  }
+
+  .hero-btns {
+    display:flex; gap:14px; justify-content:center; flex-wrap:wrap;
+    animation: fadeDown .6s .3s ease both;
+  }
+
+  .btn-primary {
+    background:linear-gradient(90deg,var(--orange),var(--orange2));
+    color:#fff; border:none; border-radius:14px;
+    padding:15px 32px; font-family:'Syne',sans-serif; font-size:1rem; font-weight:700;
+    cursor:pointer; transition:transform .2s,box-shadow .2s;
+    text-decoration:none; display:inline-block;
+    box-shadow:0 4px 24px rgba(255,107,43,.3);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(255,107,43,.4); }
+
+  .btn-ghost {
+    background:transparent; color:var(--text); border:1px solid var(--border);
+    border-radius:14px; padding:15px 32px;
+    font-family:'Syne',sans-serif; font-size:1rem; font-weight:600;
+    cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block;
+  }
+  .btn-ghost:hover { border-color:var(--orange); color:var(--orange2); }
+
+  @keyframes fadeDown {
+    from { opacity:0; transform:translateY(-16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ─── STATS ─── */
+  .stats {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+    margin-bottom:70px;
+  }
+
+  .stat {
+    background:var(--card); border:1px solid var(--border); border-radius:18px;
+    padding:24px; text-align:center;
+  }
+
+  .stat-num {
+    font-family:'Syne',sans-serif; font-size:2rem; font-weight:800;
+    background:linear-gradient(90deg,var(--orange),var(--orange2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    margin-bottom:4px;
+  }
+
+  .stat-label { color:var(--muted); font-size:.82rem; }
+
+  @media(max-width:520px) { .stats { grid-template-columns:1fr; } }
+
+  /* ─── FEATURES ─── */
+  .section-label {
+    text-align:center; margin-bottom:14px;
+    font-size:.75rem; font-weight:700; letter-spacing:.8px;
+    text-transform:uppercase; color:var(--orange);
+  }
+
+  .section-title {
+    font-family:'Syne',sans-serif; font-size:clamp(1.5rem,3vw,2rem);
+    font-weight:700; text-align:center; margin-bottom:36px; letter-spacing:-1px;
+  }
+
+  .features {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:16px; margin-bottom:70px;
+  }
+
+  .feature {
+    background:var(--card); border:1px solid var(--border); border-radius:18px;
+    padding:26px 22px; transition:transform .2s,border-color .2s;
+  }
+  .feature:hover { transform:translateY(-3px); border-color:rgba(255,107,43,.3); }
+
+  .feature-icon { font-size:1.8rem; margin-bottom:14px; }
+
+  .feature h3 {
+    font-family:'Syne',sans-serif; font-size:.95rem; font-weight:700;
+    margin-bottom:8px;
+  }
+
+  .feature p { color:var(--muted); font-size:.84rem; line-height:1.65; }
+
+  /* ─── PLANS ─── */
+  .plans {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px; margin-bottom:70px;
+  }
+
+  .plan {
+    background:var(--card); border:1px solid var(--border); border-radius:22px;
+    padding:34px 28px; position:relative; cursor:pointer;
+    transition:transform .25s,border-color .25s;
+  }
+  .plan:hover { transform:translateY(-5px); border-color:rgba(255,107,43,.35); }
+
+  .plan.hot {
+    border-color:var(--orange);
+    background:linear-gradient(150deg,#151c30,#101624);
+  }
+  .plan.hot::before {
+    content:'⭐ MÁS POPULAR';
+    position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    background:linear-gradient(90deg,var(--orange),var(--orange2));
+    color:#fff; font-size:.65rem; font-weight:800; padding:4px 18px;
+    border-radius:100px; white-space:nowrap; letter-spacing:.6px;
+  }
+
+  .plan-name { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:12px; }
+
+  .plan-price {
+    font-family:'Syne',sans-serif; font-size:3rem; font-weight:800;
+    line-height:1; margin-bottom:4px;
+  }
+  .plan-price .sym { font-size:1.4rem; color:var(--orange); vertical-align:super; }
+
+  .plan-period { color:var(--muted); font-size:.82rem; margin-bottom:22px; }
+
+  .plan-feats { list-style:none; margin-bottom:28px; }
+  .plan-feats li {
+    color:var(--muted); font-size:.88rem; padding:8px 0;
+    border-bottom:1px solid rgba(255,255,255,.04);
+    display:flex; gap:10px; align-items:center;
+  }
+  .plan-feats li::before { content:'✓'; color:var(--orange); font-weight:800; flex-shrink:0; }
+
+  .plan-cta {
+    display:block; width:100%; padding:13px;
+    border-radius:12px; border:none; cursor:pointer;
+    font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700;
+    transition:all .2s; text-align:center;
+  }
+
+  .plan-cta.outline {
+    background:transparent; border:1px solid var(--border); color:var(--text);
+  }
+  .plan-cta.outline:hover { border-color:var(--orange); color:var(--orange2); }
+
+  .plan-cta.filled {
+    background:linear-gradient(90deg,var(--orange),var(--orange2));
+    color:#fff; box-shadow:0 4px 18px rgba(255,107,43,.3);
+  }
+  .plan-cta.filled:hover { transform:scale(1.02); box-shadow:0 6px 24px rgba(255,107,43,.4); }
+
+  /* ─── PAYMENT ─── */
+  .payment-box {
+    background:var(--card); border:1px solid var(--border); border-radius:24px;
+    padding:42px; margin-bottom:70px;
+  }
+
+  @media(max-width:560px){ .payment-box{ padding:26px 18px; } }
+
+  .payment-box h2 {
+    font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:700; margin-bottom:8px;
+  }
+  .payment-box > p { color:var(--muted); font-size:.92rem; margin-bottom:32px; }
+
+  .pmethod-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media(max-width:540px){ .pmethod-grid{ grid-template-columns:1fr; } }
+
+  .pmethod {
+    border-radius:18px; padding:28px 24px;
+    border:1px solid rgba(255,255,255,.06);
+    transition:transform .2s;
+  }
+  .pmethod:hover { transform:translateY(-2px); }
+
+  .pmethod.mp { background:linear-gradient(135deg,#001d40,#00275a); border-color:rgba(0,158,227,.25); }
+  .pmethod.pp { background:linear-gradient(135deg,#001230,#001840); border-color:rgba(0,156,222,.2); }
+
+  .pm-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; margin-bottom:8px; }
+  .pm-logo.mp { color:var(--mp); }
+  .pm-logo.pp { color:var(--pp2); }
+
+  .pm-desc { color:var(--muted); font-size:.83rem; line-height:1.65; margin-bottom:20px; }
+
+  .pm-steps { list-style:none; margin-bottom:20px; }
+  .pm-steps li {
+    color:var(--muted); font-size:.82rem; padding:6px 0;
+    border-bottom:1px solid rgba(255,255,255,.04);
+    display:flex; gap:8px;
+  }
+  .pm-steps li b { color:var(--orange); flex-shrink:0; }
+
+  .pm-btn {
+    display:block; width:100%; padding:13px; border-radius:12px; border:none;
+    font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700;
+    cursor:pointer; transition:all .2s; text-align:center; color:#fff;
+    text-decoration:none;
+  }
+  .pm-btn.mp { background:var(--mp); }
+  .pm-btn.mp:hover { background:#00b4f5; transform:scale(1.02); }
+  .pm-btn.pp { background:linear-gradient(90deg,#003087,#009cde); }
+  .pm-btn.pp:hover { filter:brightness(1.15); transform:scale(1.02); }
+
+  /* ─── WHATSAPP ─── */
+  .wa-box {
+    background:linear-gradient(135deg,#0a1f0f,#0f2918);
+    border:1px solid rgba(34,197,94,.2); border-radius:24px;
+    padding:42px; margin-bottom:70px;
+  }
+
+  @media(max-width:560px){ .wa-box{ padding:26px 18px; } }
+
+  .wa-box h2 {
+    font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:700;
+    margin-bottom:8px; display:flex; align-items:center; gap:12px;
+  }
+
+  .wa-box > p { color:var(--muted); font-size:.92rem; margin-bottom:28px; }
+
+  .msg-tabs { display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
+
+  .tab {
+    padding:8px 20px; border-radius:10px;
+    border:1px solid var(--border); background:transparent;
+    color:var(--muted); font-family:'DM Sans',sans-serif; font-size:.86rem; font-weight:500;
+    cursor:pointer; transition:all .2s;
+  }
+  .tab.active, .tab:hover {
+    background:rgba(34,197,94,.1); border-color:var(--green); color:var(--green);
+  }
+
+  .msg-box {
+    background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.07);
+    border-radius:16px; padding:22px; font-size:.9rem; line-height:1.75;
+    color:var(--text); white-space:pre-wrap; margin-bottom:20px;
+    min-height:120px;
+  }
+
+  .wa-actions { display:flex; gap:12px; flex-wrap:wrap; }
+
+  .wa-btn {
+    padding:13px 26px; border-radius:12px; border:none; cursor:pointer;
+    font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700;
+    transition:all .2s; display:inline-flex; align-items:center; gap:8px;
+    text-decoration:none;
+  }
+  .wa-btn.copy { background:rgba(255,255,255,.07); color:var(--text); border:1px solid var(--border); }
+  .wa-btn.copy:hover { background:rgba(255,255,255,.12); }
+  .wa-btn.send { background:#25d366; color:#fff; }
+  .wa-btn.send:hover { background:#1db954; transform:scale(1.02); }
+
+  .copied-toast {
+    display:none; align-items:center; gap:6px;
+    color:var(--green); font-size:.85rem; font-weight:600;
+  }
+  .copied-toast.show { display:flex; }
+
+  /* ─── HOW ─── */
+  .how-steps {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:16px; margin-bottom:70px;
+  }
+
+  .how-step {
+    background:var(--card); border:1px solid var(--border); border-radius:18px;
+    padding:28px 22px; text-align:center;
+  }
+
+  .step-num {
+    width:44px; height:44px; border-radius:50%;
+    background:linear-gradient(135deg,var(--orange),var(--orange2));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem;
+    margin:0 auto 16px; color:#fff;
+  }
+
+  .how-step h3 {
+    font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700; margin-bottom:8px;
+  }
+  .how-step p { color:var(--muted); font-size:.82rem; line-height:1.6; }
+
+  /* ─── CTA FINAL ─── */
+  .final-cta {
+    text-align:center; padding:60px 20px 80px;
+  }
+  .final-cta h2 {
+    font-family:'Syne',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem);
+    font-weight:800; letter-spacing:-1.5px; margin-bottom:16px;
+  }
+  .final-cta p { color:var(--muted); margin-bottom:32px; font-size:1rem; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top:1px solid var(--border); text-align:center;
+    padding:28px 20px; color:var(--muted); font-size:.8rem;
+  }
+  footer a { color:var(--orange2); text-decoration:none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">⚡ Fullentrega</div>
+  <a href="https://fullentrega.vercel.app" class="nav-cta" target="_blank">Probar gratis →</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="pill">🚀 Sin instalar nada · Gratis para empezar</div>
+    <h1>Gestioná tus entregas<br>de forma <em>profesional</em></h1>
+    <p>La app que conecta empresas y repartidores. Sin App Store, sin Google Play. Solo compartís el link y listo.</p>
+    <div class="hero-btns">
+      <a href="https://fullentrega.vercel.app" class="btn-primary" target="_blank">🚀 Probar la app gratis</a>
+      <a href="#planes" class="btn-ghost">Ver planes →</a>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Instalaciones necesarias</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Roles: Empresa y Repartidor</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Disponible siempre</div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section-label">¿Por qué Fullentrega?</div>
+  <div class="section-title">Todo lo que necesitás 📦</div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">📱</div>
+      <h3>Sin instalar nada</h3>
+      <p>Funciona directo desde el navegador. Compartís el link y ya.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🏢</div>
+      <h3>Rol Empresa</h3>
+      <p>Cargás los pedidos, asignás repartidores y seguís todo en tiempo real.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🛵</div>
+      <h3>Rol Repartidor</h3>
+      <p>El repartidor ve sus pedidos del día y marca las entregas al toque.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <h3>Reportes</h3>
+      <p>Sabés cuántas entregas se hicieron, pendientes y completadas.</p>
+    </div>
+  </div>
+
+  <!-- PLANS -->
+  <div id="planes" class="section-label" style="margin-top:20px">Precios</div>
+  <div class="section-title">Elegí tu plan 💰</div>
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">🟢 Básico</div>
+      <div class="plan-price"><span class="sym">$</span>15</div>
+      <div class="plan-period">por mes · USD</div>
+      <ul class="plan-feats">
+        <li>Hasta 50 entregas/mes</li>
+        <li>2 repartidores</li>
+        <li>Panel de empresa</li>
+        <li>Soporte WhatsApp</li>
+      </ul>
+      <button class="plan-cta outline" onclick="scrollToPago()">Elegir plan →</button>
+    </div>
+    <div class="plan hot">
+      <div class="plan-name">🔥 Pro</div>
+      <div class="plan-price"><span class="sym">$</span>35</div>
+      <div class="plan-period">por mes · USD</div>
+      <ul class="plan-feats">
+        <li>Entregas ilimitadas</li>
+        <li>Repartidores ilimitados</li>
+        <li>Reportes avanzados</li>
+        <li>Soporte prioritario</li>
+      </ul>
+      <button class="plan-cta filled" onclick="scrollToPago()">Elegir plan →</button>
+    </div>
+    <div class="plan">
+      <div class="plan-name">💎 Premium</div>
+      <div class="plan-price"><span class="sym">$</span>80</div>
+      <div class="plan-period">por mes · USD</div>
+      <ul class="plan-feats">
+        <li>Todo lo de Pro</li>
+        <li>Marca personalizada</li>
+        <li>Integración API</li>
+        <li>Soporte 24/7</li>
+      </ul>
+      <button class="plan-cta outline" onclick="scrollToPago()">Elegir plan →</button>
+    </div>
+  </div>
+
+  <!-- PAYMENT -->
+  <div id="pago" class="payment-box">
+    <h2>💳 ¿Cómo pagar?</h2>
+    <p>Aceptamos MercadoPago y PayPal. Rápido y seguro.</p>
+    <div class="pmethod-grid">
+
+      <!-- MercadoPago -->
+      <div class="pmethod mp">
+        <div class="pm-logo mp">💙 MercadoPago</div>
+        <div class="pm-desc">Tarjeta, transferencia, efectivo (Rapipago/Pago Fácil) o saldo MP. Cuotas disponibles.</div>
+        <ul class="pm-steps">
+          <li><b>1.</b> Elegís tu plan</li>
+          <li><b>2.</b> Te mandamos el link de pago</li>
+          <li><b>3.</b> Pagás en segundos</li>
+          <li><b>4.</b> Te activamos la cuenta</li>
+        </ul>
+        <a href="https://wa.me/?text=Hola!+Quiero+pagar+con+MercadoPago+el+plan+de+Fullentrega" class="pm-btn mp" target="_blank">
+          Pagar con MercadoPago →
+        </a>
+      </div>
+
+      <!-- PayPal -->
+      <div class="pmethod pp">
+        <div class="pm-logo pp">💛 PayPal</div>
+        <div class="pm-desc">Cuenta PayPal o tarjeta internacional. Ideal para pagos desde cualquier país.</div>
+        <ul class="pm-steps">
+          <li><b>1.</b> Elegís tu plan</li>
+          <li><b>2.</b> Te mandamos el link PayPal</li>
+          <li><b>3.</b> Pagás en dólares</li>
+          <li><b>4.</b> Te activamos la cuenta</li>
+        </ul>
+        <a href="https://wa.me/?text=Hola!+Quiero+pagar+con+PayPal+el+plan+de+Fullentrega" class="pm-btn pp" target="_blank">
+          Pagar con PayPal →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WHATSAPP MESSAGES -->
+  <div class="wa-box">
+    <h2>💬 Mensajes listos para enviar</h2>
+    <p>Copiá el mensaje y mandalo por WhatsApp a tus contactos.</p>
+
+    <div class="msg-tabs">
+      <button class="tab active" onclick="showMsg(0, this)">Mensaje 1 · Directo</button>
+      <button class="tab" onclick="showMsg(1, this)">Mensaje 2 · Con urgencia</button>
+      <button class="tab" onclick="showMsg(2, this)">Mensaje 3 · Para empresas</button>
+    </div>
+
+    <div class="msg-box" id="msgBox">Hola! 👋 Te cuento sobre *Fullentrega*, mi app para gestionar entregas 🚚
+
+✅ Sin instalar nada
+✅ Roles de Empresa y Repartidor
+✅ Seguimiento en tiempo real
+
+💰 Planes desde $15/mes
+
+🔗 Probala gratis: https://fullentrega.vercel.app
+
+¿Te interesa? Te cuento más! 😊</div>
+
+    <div class="wa-actions">
+      <button class="wa-btn copy" onclick="copyMsg()">📋 Copiar mensaje</button>
+      <a class="wa-btn send" id="waLink" href="#" target="_blank">📲 Abrir en WhatsApp</a>
+      <span class="copied-toast" id="toast">✓ Copiado!</span>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section-label">Proceso</div>
+  <div class="section-title">¿Cómo funciona? 🔄</div>
+  <div class="how-steps">
+    <div class="how-step">
+      <div class="step-num">1</div>
+      <h3>Compartís el link</h3>
+      <p>Mandás el link por WhatsApp, Instagram o en persona.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">2</div>
+      <h3>El cliente prueba</h3>
+      <p>Entra a la app, elige su rol y empieza gratis.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">3</div>
+      <h3>Elige un plan</h3>
+      <p>Cuando quiere más funciones, paga con MP o PayPal.</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">4</div>
+      <h3>Lo activás</h3>
+      <p>En menos de 1 hora tiene acceso completo.</p>
+    </div>
+  </div>
+
+  <!-- FINAL CTA -->
+  <div class="final-cta">
+    <h2>¿Listo para empezar? 🚀</h2>
+    <p>Probá Fullentrega gratis. Sin tarjeta, sin instalación.</p>
+    <a href="https://fullentrega.vercel.app" class="btn-primary" target="_blank" style="font-size:1.1rem;padding:18px 40px;">
+      Entrar a la app gratis →
+    </a>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>¿Dudas sobre los planes? Escribinos por WhatsApp · <a href="https://fullentrega.vercel.app">fullentrega.vercel.app</a></p>
+  <p style="margin-top:8px">© 2026 Fullentrega · Todos los derechos reservados</p>
+</footer>
+
+<script>
+const msgs = [
+  `Hola! 👋 Te cuento sobre *Fullentrega*, mi app para gestionar entregas 🚚\n\n✅ Sin instalar nada\n✅ Roles de Empresa y Repartidor\n✅ Seguimiento en tiempo real\n\n💰 Planes desde $15/mes\n\n🔗 Probala gratis: https://fullentrega.vercel.app\n\n¿Te interesa? Te cuento más! 😊`,
+  `Hola! 🚀 ¿Gestionás entregas y perdés tiempo con llamadas y papeles?\n\n*Fullentrega* resuelve eso:\n📦 Asignás repartos en segundos\n📍 Ves dónde está cada repartidor\n📊 Tenés todo organizado\n\n🆓 Primera semana GRATIS\n💰 Después solo $15/mes\n\n👉 https://fullentrega.vercel.app\n\n¿Arrancamos?`,
+  `Hola! 👋 Si tenés un negocio con entregas, esto te va a interesar.\n\n*Fullentrega* es una app para gestionar repartidores y pedidos:\n✅ Panel de empresa y repartidor\n✅ Sin instalar nada\n✅ Desde $15/mes\n\n🎁 Probala GRATIS esta semana: https://fullentrega.vercel.app\n\n¿Te la muestro? 🚛`
+];
+
+let currentMsg = 0;
+
+function showMsg(idx, btn) {
+  currentMsg = idx;
+  document.getElementById('msgBox').textContent = msgs[idx];
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  updateWaLink();
+}
+
+function updateWaLink() {
+  const encoded = encodeURIComponent(msgs[currentMsg]);
+  document.getElementById('waLink').href = `https://wa.me/?text=${encoded}`;
+}
+
+function copyMsg() {
+  navigator.clipboard.writeText(msgs[currentMsg]).then(() => {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  });
+}
+
+function scrollToPago() {
+  document.getElementById('pago').scrollIntoView({ behavior: 'smooth' });
+}
+
+updateWaLink();
+</script>
+</body>
+</html>
