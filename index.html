@@ -1,1 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FullEntrega — Delivery en Santiago</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --orange: #ff4d00;
+    --orange-light: #ff7a3d;
+    --gray: #1a1a1a;
+    --gray-mid: #2e2e2e;
+    --text-muted: #888;
+  }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--orange); }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 32px;
+  }
+
+  nav ul a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  nav ul a:hover { color: var(--white); }
+
+  .nav-cta {
+    background: var(--orange);
+    color: var(--white) !important;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 500 !important;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--orange-light) !important; color: var(--white) !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 70% 50%, rgba(255,77,0,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  .hero-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,77,0,0.1);
+    border: 1px solid rgba(255,77,0,0.3);
+    color: var(--orange);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: pulse 1.5s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  h1 .highlight {
+    color: var(--orange);
+    position: relative;
+    display: inline-block;
+  }
+
+  h1 .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 4px; left: 0; right: 0;
+    height: 3px;
+    background: var(--orange);
+    opacity: 0.4;
+    border-radius: 2px;
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: var(--orange);
+    color: var(--white);
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    background: var(--orange-light);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(255,77,0,0.3);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--white);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 64px;
+    padding-top: 48px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    animation: fadeUp 0.6s 0.4s ease both;
+    flex-wrap: wrap;
+  }
+
+  .stat-item {}
+  .stat-number {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  /* FLOATING CARD */
+  .hero-visual {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeLeft 0.8s 0.5s ease both;
+  }
+
+  @keyframes fadeLeft {
+    from { opacity: 0; transform: translateY(-50%) translateX(30px); }
+    to { opacity: 1; transform: translateY(-50%) translateX(0); }
+  }
+
+  .order-card {
+    background: var(--gray);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 20px 24px;
+    width: 280px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .order-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--orange), transparent);
+  }
+
+  .order-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  .status-text {
+    font-size: 0.75rem;
+    color: #22c55e;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .order-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .order-detail {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .order-progress {
+    margin-top: 16px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .order-progress-bar {
+    height: 100%;
+    background: var(--orange);
+    border-radius: 4px;
+    width: 65%;
+    animation: progress 2s ease infinite alternate;
+  }
+
+  @keyframes progress {
+    from { width: 40%; }
+    to { width: 80%; }
+  }
+
+  .earn-card {
+    background: var(--orange);
+    border-radius: 16px;
+    padding: 20px 24px;
+    width: 280px;
+  }
+
+  .earn-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .earn-amount {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+  }
+
+  .earn-sub {
+    font-size: 0.78rem;
+    opacity: 0.7;
+    margin-top: 4px;
+  }
+
+  /* HOW IT WORKS */
+  .section {
+    padding: 100px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    color: var(--orange);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 60px;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .step {
+    background: var(--gray);
+    padding: 40px 36px;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .step:first-child { border-radius: 16px 0 0 16px; }
+  .step:last-child { border-radius: 0 16px 16px 0; }
+
+  .step:hover { background: var(--gray-mid); }
+
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 3.5rem;
+    color: rgba(255,77,0,0.15);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .step-icon {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .step-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* USERS SECTION */
+  .users-section {
+    background: var(--gray);
+    padding: 100px 40px;
+  }
+
+  .users-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .users-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .user-card {
+    background: var(--black);
+    border-radius: 20px;
+    padding: 40px 32px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .user-card:hover {
+    border-color: var(--orange);
+    transform: translateY(-4px);
+  }
+
+  .user-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+
+  .user-card:hover::after { transform: scaleX(1); }
+
+  .user-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .user-type {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .user-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .user-benefits {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .user-benefits li {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .user-benefits li::before {
+    content: '→';
+    color: var(--orange);
+    flex-shrink: 0;
+  }
+
+  /* ZONE SECTION */
+  .zone-section {
+    padding: 100px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .zone-badge {
+    display: inline-block;
+    background: rgba(255,77,0,0.1);
+    border: 1px solid rgba(255,77,0,0.2);
+    color: var(--orange);
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .zones {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+
+  .zone-pill {
+    background: var(--gray);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .zone-pill.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    font-weight: 500;
+  }
+
+  .zone-pill:not(.active):hover {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  /* CTA SECTION */
+  .cta-section {
+    margin: 0 40px 80px;
+    background: var(--orange);
+    border-radius: 24px;
+    padding: 80px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 300px; height: 300px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+
+  .cta-section::after {
+    content: '';
+    position: absolute;
+    right: 80px; bottom: -80px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+
+  .cta-content { position: relative; z-index: 1; }
+
+  .cta-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .cta-sub {
+    font-size: 1rem;
+    opacity: 0.85;
+    max-width: 400px;
+  }
+
+  .cta-form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-input {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: var(--white);
+    padding: 14px 20px;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    width: 240px;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .cta-input::placeholder { color: rgba(255,255,255,0.6); }
+  .cta-input:focus { background: rgba(255,255,255,0.2); border-color: white; }
+
+  .btn-white {
+    background: var(--white);
+    color: var(--orange);
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+  }
+
+  .footer-logo span { color: var(--orange); }
+
+  .footer-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-links a {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--white); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero-visual { display: none; }
+    .steps { grid-template-columns: 1fr; }
+    .step:first-child { border-radius: 16px 16px 0 0; }
+    .step:last-child { border-radius: 0 0 16px 16px; }
+    .users-grid { grid-template-columns: 1fr; }
+    nav ul { display: none; }
+    .cta-section { padding: 60px 32px; }
+  }
+
+  @media (max-width: 600px) {
+    nav { padding: 16px 20px; }
+    .hero { padding: 100px 20px 60px; }
+    .section { padding: 60px 20px; }
+    .hero-stats { gap: 24px; }
+    .cta-section { margin: 0 20px 60px; }
+    footer { padding: 30px 20px; flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Full<span>Entrega</span></div>
+  <ul>
+    <li><a href="#como">Cómo funciona</a></li>
+    <li><a href="#usuarios">Para ti</a></li>
+    <li><a href="#zonas">Zonas</a></li>
+    <li><a href="#contacto" class="nav-cta">Unirse</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">🛵 Lanzando en Ñuñoa, Santiago</div>
+    <h1>Tu negocio,<br><span class="highlight">entregado</span><br>al instante.</h1>
+    <p class="hero-sub">Conectamos negocios locales con repartidores confiables. Rápido, simple y sin complicaciones.</p>
+    <div class="hero-actions">
+      <a href="#contacto" class="btn-primary">Registra tu negocio</a>
+      <a href="#como" class="btn-secondary">Ver cómo funciona</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-number">30'</div>
+        <div class="stat-label">Tiempo promedio entrega</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">0%</div>
+        <div class="stat-label">Comisión primer mes</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Soporte disponible</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="order-card">
+      <div class="order-status">
+        <div class="status-dot"></div>
+        <div class="status-text">EN CAMINO</div>
+      </div>
+      <div class="order-title">Pedido #FE-2847</div>
+      <div class="order-detail">Minimarket Don Carlos · Ñuñoa</div>
+      <div class="order-progress">
+        <div class="order-progress-bar"></div>
+      </div>
+    </div>
+    <div class="earn-card">
+      <div class="earn-label">GANASTE HOY</div>
+      <div class="earn-amount">$28.500</div>
+      <div class="earn-sub">12 entregas completadas ✓</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="como">
+  <div class="section-label">Proceso</div>
+  <div class="section-title">Simple desde<br>el primer pedido.</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-icon">🏪</div>
+      <div class="step-title">Registra tu negocio</div>
+      <div class="step-desc">Crea tu perfil en minutos. Sin papeleos, sin costos de entrada. Solo tu negocio y tus productos.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-icon">📲</div>
+      <div class="step-title">Recibe pedidos</div>
+      <div class="step-desc">Los clientes piden desde la app. Tú ves el pedido en tiempo real y lo preparas tranquilo.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-icon">🛵</div>
+      <div class="step-title">Nosotros entregamos</div>
+      <div class="step-desc">Un repartidor cercano recoge y entrega. Tú cobras, el cliente recibe, todos felices.</div>
+    </div>
+  </div>
+</section>
+
+<!-- USERS -->
+<div class="users-section" id="usuarios">
+  <div class="users-inner">
+    <div class="section-label">Para todos</div>
+    <div class="section-title">¿Eres negocio,<br>repartidor o cliente?</div>
+    <div class="users-grid">
+      <div class="user-card">
+        <span class="user-emoji">🏪</span>
+        <div class="user-type">Negocios</div>
+        <div class="user-desc">Restaurantes, minimarkets, farmacias y más. Llega a más clientes sin invertir en flota.</div>
+        <ul class="user-benefits">
+          <li>Sin costo de entrada</li>
+          <li>Panel de control simple</li>
+          <li>Pagos al día siguiente</li>
+          <li>Soporte dedicado</li>
+        </ul>
+      </div>
+      <div class="user-card">
+        <span class="user-emoji">🛵</span>
+        <div class="user-type">Repartidores</div>
+        <div class="user-desc">Trabaja cuando quieras, gana por cada entrega. Tú decides tus horarios y zonas.</div>
+        <ul class="user-benefits">
+          <li>Gana desde $1.500 por entrega</li>
+          <li>Horario flexible 100%</li>
+          <li>Pagos semanales</li>
+          <li>App intuitiva con GPS</li>
+        </ul>
+      </div>
+      <div class="user-card">
+        <span class="user-emoji">📱</span>
+        <div class="user-type">Clientes</div>
+        <div class="user-desc">Pide de tus tiendas favoritas del barrio. Llegamos donde estés en menos de 30 minutos.</div>
+        <ul class="user-benefits">
+          <li>Tracking en tiempo real</li>
+          <li>Pago online o en efectivo</li>
+          <li>Negocios locales cerca</li>
+          <li>Sin mínimo de compra</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ZONES -->
+<div class="zone-section" id="zonas">
+  <div class="section-label">Cobertura</div>
+  <div class="section-title">Empezamos en Ñuñoa.<br>Crecemos contigo.</div>
+  <div class="zones">
+    <div class="zone-pill active">📍 Ñuñoa — Lanzando pronto</div>
+    <div class="zone-pill">Providencia — Próximamente</div>
+    <div class="zone-pill">La Florida — Próximamente</div>
+    <div class="zone-pill">Macul — Próximamente</div>
+    <div class="zone-pill">San Miguel — Próximamente</div>
+    <div class="zone-pill">Las Condes — Próximamente</div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section" id="contacto">
+  <div class="cta-content">
+    <div class="cta-title">¿Listo para<br>ser parte?</div>
+    <p class="cta-sub">Únete a la lista de espera. Los primeros negocios tienen 0% de comisión el primer mes.</p>
+  </div>
+  <div class="cta-form">
+    <input type="email" class="cta-input" placeholder="Tu correo electrónico">
+    <button class="btn-white" onclick="handleSignup()">Quiero unirme →</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Full<span>Entrega</span></div>
+  <div class="footer-text">© 2026 FullEntrega · Santiago, Chile</div>
+  <div class="footer-links">
+    <a href="#">Términos</a>
+    <a href="#">Privacidad</a>
+    <a href="#">Contacto</a>
+  </div>
+</footer>
+
+<script>
+  function handleSignup() {
+    const input = document.querySelector('.cta-input');
+    const email = input.value.trim();
+    if (!email || !email.includes('@')) {
+      input.style.borderColor = '#ff4d00';
+      input.placeholder = 'Ingresa un correo válido';
+      setTimeout(() => {
+        input.style.borderColor = 'rgba(255,255,255,0.3)';
+        input.placeholder = 'Tu correo electrónico';
+      }, 2000);
+      return;
+    }
+    const btn = document.querySelector('.btn-white');
+    btn.textContent = '✓ ¡Registrado!';
+    btn.style.background = '#22c55e';
+    btn.style.color = 'white';
+    input.value = '';
+    input.placeholder = '¡Te avisaremos pronto!';
+  }
+
+  // Scroll animation
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.step, .user-card, .zone-pill').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
