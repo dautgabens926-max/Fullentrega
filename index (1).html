@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fullentrega – Gestión de Entregas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #080c14;
+  --card: #0f1623;
+  --border: #1a2740;
+  --orange: #ff6b2b;
+  --orange2: #ff9a5c;
+  --blue: #3b82f6;
+  --green: #22c55e;
+  --red: #ef4444;
+  --text: #eef2ff;
+  --muted: #6b7fa3;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(255,107,43,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(59,130,246,.06) 0%, transparent 60%);
+  pointer-events:none; z-index:0;
+}
+
+.screen { display:none; position:relative; z-index:1; }
+.screen.active { display:block; }
+
+/* ── PANTALLA LOGIN ── */
+#login {
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:40px 20px; text-align:center;
+}
+
+.login-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:24px; padding:40px 32px;
+  width:100%; max-width:420px;
+  animation: fadeDown .6s ease both;
+}
+
+.login-logo {
+  font-family:'Syne',sans-serif; font-weight:800; font-size:2.2rem;
+  letter-spacing:-1.5px;
+  background:linear-gradient(90deg,var(--orange),var(--orange2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:6px;
+}
+
+.login-sub { color:var(--muted); font-size:.82rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:32px; }
+
+.login-title { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; margin-bottom:6px; }
+.login-desc { color:var(--muted); font-size:.85rem; margin-bottom:24px; line-height:1.6; }
+
+.code-input {
+  width:100%; background:rgba(255,255,255,.05);
+  border:2px solid var(--border); border-radius:14px;
+  padding:16px; color:var(--text);
+  font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:700;
+  text-align:center; letter-spacing:4px; text-transform:uppercase;
+  outline:none; transition:border-color .2s; margin-bottom:16px;
+}
+.code-input:focus { border-color:var(--orange); }
+
+.login-error {
+  color:#f87171; font-size:.85rem; margin-bottom:16px;
+  display:none;
+}
+.login-error.show { display:block; }
+
+.admin-link {
+  margin-top:20px; color:var(--muted); font-size:.78rem; cursor:pointer;
+  text-decoration:underline;
+}
+
+/* ── PANTALLA INICIO ── */
+#inicio {
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:40px 20px; text-align:center;
+}
+
+.logo-wrap { margin-bottom:40px; animation: fadeDown .6s ease both; }
+
+.logo {
+  font-family:'Syne',sans-serif; font-weight:800; font-size:2.8rem;
+  letter-spacing:-2px;
+  background:linear-gradient(90deg,var(--orange),var(--orange2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.logo-sub { color:var(--muted); font-size:.9rem; margin-top:4px; letter-spacing:2px; text-transform:uppercase; }
+
+.tagline {
+  font-family:'Syne',sans-serif; font-size:clamp(1.6rem,5vw,2.4rem);
+  font-weight:700; letter-spacing:-1px; margin-bottom:12px;
+  animation: fadeDown .6s .1s ease both;
+}
+
+.tagline em {
+  font-style:normal;
+  background:linear-gradient(90deg,var(--orange),var(--orange2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.sub-text {
+  color:var(--muted); font-size:1rem; margin-bottom:50px; line-height:1.7;
+  animation: fadeDown .6s .2s ease both;
+}
+
+.roles {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:16px; width:100%; max-width:500px;
+  animation: fadeDown .6s .3s ease both;
+}
+
+.role-btn {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:32px 20px; cursor:pointer;
+  transition:all .25s; text-align:center;
+}
+
+.role-btn:hover { transform:translateY(-4px); border-color:var(--orange); }
+
+.role-btn.empresa:hover { border-color:var(--blue); }
+.role-btn.repartidor:hover { border-color:var(--orange); }
+
+.role-icon { font-size:2.5rem; margin-bottom:14px; }
+
+.role-name {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; margin-bottom:6px;
+}
+
+.role-desc { color:var(--muted); font-size:.82rem; line-height:1.5; }
+
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── HEADER COMÚN ── */
+.header {
+  background:rgba(8,12,20,.9); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:16px 20px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:50;
+}
+
+.header-logo {
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem;
+  background:linear-gradient(90deg,var(--orange),var(--orange2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.back-btn {
+  background:rgba(255,255,255,.06); border:1px solid var(--border);
+  color:var(--text); padding:8px 16px; border-radius:10px;
+  font-family:'DM Sans',sans-serif; font-size:.85rem; cursor:pointer;
+  transition:all .2s;
+}
+.back-btn:hover { background:rgba(255,255,255,.1); }
+
+.role-badge {
+  background:rgba(255,107,43,.12); border:1px solid rgba(255,107,43,.25);
+  color:var(--orange2); font-size:.75rem; font-weight:700;
+  padding:5px 14px; border-radius:100px; letter-spacing:.5px;
+}
+
+.role-badge.blue {
+  background:rgba(59,130,246,.12); border-color:rgba(59,130,246,.25);
+  color:#93c5fd;
+}
+
+/* ── CONTENIDO ── */
+.content { max-width:800px; margin:0 auto; padding:24px 20px; }
+
+/* ── TABS ── */
+.tabs {
+  display:flex; gap:8px; margin-bottom:24px;
+  overflow-x:auto; padding-bottom:4px;
+}
+
+.tab {
+  padding:10px 20px; border-radius:12px;
+  border:1px solid var(--border); background:transparent;
+  color:var(--muted); font-family:'DM Sans',sans-serif;
+  font-size:.88rem; font-weight:500; cursor:pointer;
+  transition:all .2s; white-space:nowrap;
+}
+
+.tab.active, .tab:hover {
+  background:rgba(255,107,43,.1); border-color:var(--orange); color:var(--orange2);
+}
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ── CARDS ── */
+.card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:24px; margin-bottom:16px;
+}
+
+.card-title {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem;
+  margin-bottom:16px; display:flex; align-items:center; gap:10px;
+}
+
+/* ── STATS ── */
+.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:20px; }
+
+@media(min-width:500px){ .stats-grid { grid-template-columns:repeat(4,1fr); } }
+
+.stat-card {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:14px; padding:16px; text-align:center;
+}
+
+.stat-num {
+  font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800;
+  background:linear-gradient(90deg,var(--orange),var(--orange2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.stat-label { color:var(--muted); font-size:.75rem; margin-top:4px; }
+
+/* ── FORM ── */
+.form-group { margin-bottom:16px; }
+
+.form-label {
+  display:block; color:var(--muted); font-size:.82rem;
+  margin-bottom:6px; font-weight:500;
+}
+
+.form-input {
+  width:100%; background:rgba(255,255,255,.05);
+  border:1px solid var(--border); border-radius:12px;
+  padding:12px 16px; color:var(--text);
+  font-family:'DM Sans',sans-serif; font-size:.95rem;
+  transition:border-color .2s; outline:none;
+}
+
+.form-input:focus { border-color:var(--orange); }
+
+.form-select {
+  width:100%; background:#0f1623;
+  border:1px solid var(--border); border-radius:12px;
+  padding:12px 16px; color:var(--text);
+  font-family:'DM Sans',sans-serif; font-size:.95rem;
+  outline:none; cursor:pointer;
+}
+
+.btn {
+  padding:13px 28px; border-radius:12px; border:none;
+  font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700;
+  cursor:pointer; transition:all .2s;
+}
+
+.btn-primary {
+  background:linear-gradient(90deg,var(--orange),var(--orange2));
+  color:#fff; box-shadow:0 4px 18px rgba(255,107,43,.3);
+}
+
+.btn-primary:hover { transform:scale(1.02); box-shadow:0 6px 24px rgba(255,107,43,.4); }
+
+.btn-full { width:100%; display:block; text-align:center; }
+
+/* ── PEDIDOS LIST ── */
+.pedido-item {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:14px; padding:16px; margin-bottom:10px;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; flex-wrap:wrap;
+}
+
+.pedido-info { flex:1; min-width:0; }
+
+.pedido-id {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:.9rem;
+  margin-bottom:4px;
+}
+
+.pedido-dest { color:var(--muted); font-size:.82rem; }
+
+.pedido-repartidor { color:var(--muted); font-size:.78rem; margin-top:2px; }
+
+.status-badge {
+  padding:5px 12px; border-radius:100px;
+  font-size:.72rem; font-weight:700; letter-spacing:.5px;
+  white-space:nowrap; flex-shrink:0;
+}
+
+.status-pendiente { background:rgba(251,191,36,.1); color:#fbbf24; border:1px solid rgba(251,191,36,.2); }
+.status-en-camino { background:rgba(59,130,246,.1); color:#60a5fa; border:1px solid rgba(59,130,246,.2); }
+.status-entregado { background:rgba(34,197,94,.1); color:#4ade80; border:1px solid rgba(34,197,94,.2); }
+.status-cancelado { background:rgba(239,68,68,.1); color:#f87171; border:1px solid rgba(239,68,68,.2); }
+
+.pedido-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
+.btn-sm {
+  padding:7px 14px; border-radius:9px; border:1px solid var(--border);
+  background:transparent; color:var(--text); font-size:.78rem;
+  font-family:'DM Sans',sans-serif; font-weight:500; cursor:pointer;
+  transition:all .2s;
+}
+
+.btn-sm:hover { background:rgba(255,255,255,.08); }
+.btn-sm.green { border-color:var(--green); color:var(--green); }
+.btn-sm.green:hover { background:rgba(34,197,94,.1); }
+.btn-sm.red { border-color:var(--red); color:var(--red); }
+.btn-sm.red:hover { background:rgba(239,68,68,.1); }
+.btn-sm.blue { border-color:var(--blue); color:#60a5fa; }
+.btn-sm.blue:hover { background:rgba(59,130,246,.1); }
+
+/* ── EMPTY STATE ── */
+.empty {
+  text-align:center; padding:40px 20px; color:var(--muted);
+}
+.empty-icon { font-size:2.5rem; margin-bottom:12px; }
+.empty p { font-size:.9rem; }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px);
+  background:var(--card); border:1px solid var(--border);
+  color:var(--text); padding:14px 24px; border-radius:14px;
+  font-size:.9rem; font-weight:500; z-index:999;
+  transition:transform .3s ease; white-space:nowrap;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ── REPARTIDOR ── */
+.entrega-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:20px; margin-bottom:14px;
+}
+
+.entrega-header {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:14px; gap:12px;
+}
+
+.entrega-num {
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem;
+  color:var(--orange);
+}
+
+.entrega-datos { margin-bottom:14px; }
+
+.dato {
+  display:flex; gap:10px; margin-bottom:8px; align-items:flex-start;
+}
+
+.dato-icon { font-size:1rem; flex-shrink:0; margin-top:1px; }
+.dato-text { font-size:.88rem; line-height:1.5; }
+.dato-label { color:var(--muted); font-size:.75rem; }
+
+.entrega-actions { display:flex; gap:10px; }
+
+/* ── MODAL ── */
+.modal-bg {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.7); z-index:100;
+  align-items:center; justify-content:center; padding:20px;
+}
+.modal-bg.show { display:flex; }
+
+.modal {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:22px; padding:32px; max-width:420px; width:100%;
+  animation:slideUp .3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.modal h3 {
+  font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700;
+  margin-bottom:20px;
+}
+
+.modal-actions { display:flex; gap:10px; margin-top:20px; }
+
+.btn-cancel {
+  background:rgba(255,255,255,.06); border:1px solid var(--border);
+  color:var(--text); flex:1;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ PANTALLA LOGIN ══ -->
+<div id="login" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">⚡ Fullentrega</div>
+    <div class="login-sub">Sistema de Entregas</div>
+    <div class="login-title">🔐 Ingresá tu código</div>
+    <div class="login-desc">Escribí el código de acceso que te dio el administrador</div>
+    <input class="code-input" id="inp-codigo" placeholder="EMP-0000" maxlength="10" oninput="this.value=this.value.toUpperCase()"/>
+    <div class="login-error" id="login-error">❌ Código incorrecto. Verificá con el administrador.</div>
+    <button class="btn btn-primary btn-full" onclick="verificarCodigo()">Entrar →</button>
+    <div class="admin-link" onclick="mostrarAdmin()">⚙️ Soy el administrador</div>
+  </div>
+</div>
+
+<!-- ══ PANTALLA ADMIN ══ -->
+<div id="admin-panel" class="screen">
+  <div class="header">
+    <div class="header-logo">⚡ Fullentrega</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="role-badge blue">⚙️ Admin</span>
+      <button class="back-btn" onclick="salirAdmin()">← Salir</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">🔐 Gestión de códigos de acceso</div>
+      <div class="form-group">
+        <label class="form-label">Contraseña de administrador</label>
+        <input class="form-input" id="admin-pass" placeholder="Contraseña" type="password"/>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="verificarAdmin()" style="margin-bottom:24px">Verificar</button>
+      <div id="admin-codigos" style="display:none">
+        <div style="margin-bottom:20px">
+          <div class="card-title">➕ Crear nuevo código</div>
+          <div class="form-group">
+            <label class="form-label">Nombre del cliente</label>
+            <input class="form-input" id="cod-nombre" placeholder="Ej: Restaurante El Sol"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo de acceso</label>
+            <select class="form-select" id="cod-tipo">
+              <option value="empresa">🏢 Empresa</option>
+              <option value="repartidor">🛵 Repartidor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Código personalizado (opcional)</label>
+            <input class="form-input" id="cod-custom" placeholder="Ej: REST-2024" style="text-transform:uppercase"/>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="crearCodigo()">Generar código</button>
+        </div>
+        <div class="card-title">📋 Códigos activos</div>
+        <div id="lista-codigos"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANTALLA INICIO ══ -->
+<div id="inicio" class="screen active">
+  <div class="logo-wrap">
+    <div class="logo">⚡ Fullentrega</div>
+    <div class="logo-sub">Sistema de Gestión de Entregas</div>
+  </div>
+  <div class="tagline">Gestioná tus entregas de forma <em>profesional</em></div>
+  <p class="sub-text">Sin instalar nada · Solo elegí tu rol y empezá</p>
+  <div class="roles">
+    <div class="role-btn empresa" onclick="entrar('empresa')">
+      <div class="role-icon">🏢</div>
+      <div class="role-name">Empresa</div>
+      <div class="role-desc">Creá pedidos, asigná repartidores y seguí las entregas</div>
+    </div>
+    <div class="role-btn repartidor" onclick="entrar('repartidor')">
+      <div class="role-icon">🛵</div>
+      <div class="role-name">Repartidor</div>
+      <div class="role-desc">Mirá tus pedidos del día y marcá las entregas</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANTALLA EMPRESA ══ -->
+<div id="empresa" class="screen">
+  <div class="header">
+    <div class="header-logo">⚡ Fullentrega</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="role-badge blue">🏢 Empresa</span>
+      <button class="back-btn" onclick="volver()">← Salir</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-pendiente" style="color:#fbbf24;-webkit-text-fill-color:#fbbf24">0</div>
+        <div class="stat-label">Pendientes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-camino" style="color:#60a5fa;-webkit-text-fill-color:#60a5fa">0</div>
+        <div class="stat-label">En camino</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-entregado" style="color:#4ade80;-webkit-text-fill-color:#4ade80">0</div>
+        <div class="stat-label">Entregados</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('tab-pedidos', this)">📦 Pedidos</button>
+      <button class="tab" onclick="showTab('tab-nuevo', this)">➕ Nuevo pedido</button>
+      <button class="tab" onclick="showTab('tab-repartidores', this)">🛵 Repartidores</button>
+    </div>
+
+    <!-- Tab: Pedidos -->
+    <div id="tab-pedidos" class="tab-content active">
+      <div class="card">
+        <div class="card-title">📦 Todos los pedidos</div>
+        <div id="lista-pedidos">
+          <div class="empty">
+            <div class="empty-icon">📭</div>
+            <p>No hay pedidos todavía.<br>Creá el primero en "Nuevo pedido"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Nuevo pedido -->
+    <div id="tab-nuevo" class="tab-content">
+      <div class="card">
+        <div class="card-title">➕ Crear nuevo pedido</div>
+        <div class="form-group">
+          <label class="form-label">Cliente</label>
+          <input class="form-input" id="inp-cliente" placeholder="Nombre del cliente" type="text"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dirección de entrega</label>
+          <input class="form-input" id="inp-direccion" placeholder="Av. Ejemplo 1234" type="text"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción del pedido</label>
+          <input class="form-input" id="inp-descripcion" placeholder="Ej: Caja grande, frágil" type="text"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono del cliente</label>
+          <input class="form-input" id="inp-telefono" placeholder="+56 9 1234 5678" type="tel"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Asignar repartidor</label>
+          <select class="form-select" id="inp-repartidor">
+            <option value="">Sin asignar</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="crearPedido()">Crear pedido</button>
+      </div>
+    </div>
+
+    <!-- Tab: Repartidores -->
+    <div id="tab-repartidores" class="tab-content">
+      <div class="card">
+        <div class="card-title">🛵 Repartidores</div>
+        <div class="form-group">
+          <label class="form-label">Nombre del repartidor</label>
+          <input class="form-input" id="inp-nombre-rep" placeholder="Nombre completo" type="text"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input class="form-input" id="inp-tel-rep" placeholder="+56 9 1234 5678" type="tel"/>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="agregarRepartidor()" style="margin-bottom:20px">Agregar repartidor</button>
+        <div id="lista-repartidores">
+          <div class="empty">
+            <div class="empty-icon">🛵</div>
+            <p>No hay repartidores.<br>Agregá el primero arriba.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ PANTALLA REPARTIDOR ══ -->
+<div id="repartidor" class="screen">
+  <div class="header">
+    <div class="header-logo">⚡ Fullentrega</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="role-badge">🛵 Repartidor</span>
+      <button class="back-btn" onclick="volver()">← Salir</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Selector repartidor -->
+    <div class="card" id="rep-selector-card">
+      <div class="card-title">👤 ¿Quién sos?</div>
+      <div class="form-group">
+        <label class="form-label">Seleccioná tu nombre</label>
+        <select class="form-select" id="sel-repartidor">
+          <option value="">Elegí tu nombre...</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="seleccionarRep()">Entrar</button>
+    </div>
+
+    <div id="rep-panel" style="display:none">
+      <!-- Stats repartidor -->
+      <div class="stats-grid" style="margin-bottom:20px">
+        <div class="stat-card">
+          <div class="stat-num" id="rep-stat-total">0</div>
+          <div class="stat-label">Mis pedidos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="rep-stat-pendiente" style="color:#fbbf24;-webkit-text-fill-color:#fbbf24">0</div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="rep-stat-camino" style="color:#60a5fa;-webkit-text-fill-color:#60a5fa">0</div>
+          <div class="stat-label">En camino</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="rep-stat-entregado" style="color:#4ade80;-webkit-text-fill-color:#4ade80">0</div>
+          <div class="stat-label">Entregados</div>
+        </div>
+      </div>
+
+      <div id="lista-entregas">
+        <div class="empty">
+          <div class="empty-icon">🎉</div>
+          <p>No tenés pedidos asignados hoy.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal cambiar estado -->
+<div class="modal-bg" id="modal-estado">
+  <div class="modal">
+    <h3>📦 Cambiar estado del pedido</h3>
+    <div class="form-group">
+      <label class="form-label">Nuevo estado</label>
+      <select class="form-select" id="modal-sel-estado">
+        <option value="pendiente">⏳ Pendiente</option>
+        <option value="en-camino">🚚 En camino</option>
+        <option value="entregado">✅ Entregado</option>
+        <option value="cancelado">❌ Cancelado</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="confirmarEstado()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── ESTADO GLOBAL ──
+let pedidos = JSON.parse(localStorage.getItem('fe_pedidos') || '[]');
+let repartidores = JSON.parse(localStorage.getItem('fe_repartidores') || '[]');
+let codigos = JSON.parse(localStorage.getItem('fe_codigos') || '[]');
+let pedidoActual = null;
+let repActual = null;
+const ADMIN_PASS = 'fullentrega2024';
+
+// Códigos por defecto
+if (!codigos.length) {
+  codigos = [
+    { id:'1', nombre:'Demo Empresa', tipo:'empresa', codigo:'EMP-DEMO' },
+    { id:'2', nombre:'Demo Repartidor', tipo:'repartidor', codigo:'REP-DEMO' },
+  ];
+  localStorage.setItem('fe_codigos', JSON.stringify(codigos));
+}
+
+function guardar() {
+  localStorage.setItem('fe_pedidos', JSON.stringify(pedidos));
+  localStorage.setItem('fe_repartidores', JSON.stringify(repartidores));
+  localStorage.setItem('fe_codigos', JSON.stringify(codigos));
+}
+
+// ── LOGIN ──
+function verificarCodigo() {
+  const cod = document.getElementById('inp-codigo').value.trim().toUpperCase();
+  const encontrado = codigos.find(c => c.codigo === cod);
+  if (!encontrado) {
+    document.getElementById('login-error').classList.add('show');
+    return;
+  }
+  document.getElementById('login-error').classList.remove('show');
+  entrar(encontrado.tipo);
+}
+
+document.getElementById('inp-codigo').addEventListener('keydown', e => {
+  if (e.key === 'Enter') verificarCodigo();
+});
+
+// ── ADMIN ──
+function mostrarAdmin() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('admin-panel').classList.add('active');
+}
+
+function salirAdmin() {
+  document.getElementById('admin-codigos').style.display = 'none';
+  document.getElementById('admin-pass').value = '';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('login').classList.add('active');
+}
+
+function verificarAdmin() {
+  const pass = document.getElementById('admin-pass').value;
+  if (pass !== ADMIN_PASS) { toast('❌ Contraseña incorrecta'); return; }
+  document.getElementById('admin-codigos').style.display = 'block';
+  renderCodigos();
+}
+
+function crearCodigo() {
+  const nombre = document.getElementById('cod-nombre').value.trim();
+  const tipo = document.getElementById('cod-tipo').value;
+  let custom = document.getElementById('cod-custom').value.trim().toUpperCase();
+  if (!nombre) { toast('⚠️ Escribí el nombre del cliente'); return; }
+  if (!custom) {
+    const prefix = tipo === 'empresa' ? 'EMP' : 'REP';
+    custom = prefix + '-' + Math.random().toString(36).substring(2,6).toUpperCase();
+  }
+  if (codigos.find(c => c.codigo === custom)) { toast('⚠️ Ese código ya existe'); return; }
+  codigos.push({ id: Date.now().toString(), nombre, tipo, codigo: custom });
+  guardar();
+  document.getElementById('cod-nombre').value = '';
+  document.getElementById('cod-custom').value = '';
+  renderCodigos();
+  toast('✅ Código creado: ' + custom);
+}
+
+function eliminarCodigo(id) {
+  if (!confirm('¿Eliminar este código?')) return;
+  codigos = codigos.filter(c => c.id !== id);
+  guardar(); renderCodigos(); toast('🗑️ Código eliminado');
+}
+
+function renderCodigos() {
+  const c = document.getElementById('lista-codigos');
+  if (!codigos.length) { c.innerHTML = '<div class="empty"><p>No hay códigos.</p></div>'; return; }
+  c.innerHTML = codigos.map(cod => `
+    <div class="pedido-item">
+      <div class="pedido-info">
+        <div class="pedido-id">${cod.tipo === 'empresa' ? '🏢' : '🛵'} ${cod.nombre}</div>
+        <div class="pedido-dest" style="font-family:monospace;font-size:1rem;color:var(--orange2);letter-spacing:2px">${cod.codigo}</div>
+        <div class="pedido-dest">${cod.tipo === 'empresa' ? 'Acceso Empresa' : 'Acceso Repartidor'}</div>
+      </div>
+      <button class="btn-sm red" onclick="eliminarCodigo('${cod.id}')">Borrar</button>
+    </div>
+  `).join('');
+}
+
+// ── NAVEGACIÓN ──
+function entrar(rol) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(rol).classList.add('active');
+  if (rol === 'empresa') renderEmpresa();
+  if (rol === 'repartidor') renderRepartidor();
+}
+
+function volver() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('login').classList.add('active');
+  document.getElementById('inp-codigo').value = '';
+}
+
+// ── TABS ──
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── EMPRESA ──
+function renderEmpresa() {
+  actualizarStats();
+  renderPedidos();
+  renderRepartidoresLista();
+  actualizarSelectRepartidor();
+}
+
+function actualizarStats() {
+  document.getElementById('stat-total').textContent = pedidos.length;
+  document.getElementById('stat-pendiente').textContent = pedidos.filter(p=>p.estado==='pendiente').length;
+  document.getElementById('stat-camino').textContent = pedidos.filter(p=>p.estado==='en-camino').length;
+  document.getElementById('stat-entregado').textContent = pedidos.filter(p=>p.estado==='entregado').length;
+}
+
+function statusLabel(s) {
+  const m = {pendiente:'⏳ Pendiente','en-camino':'🚚 En camino',entregado:'✅ Entregado',cancelado:'❌ Cancelado'};
+  return m[s] || s;
+}
+
+function renderPedidos() {
+  const c = document.getElementById('lista-pedidos');
+  if (!pedidos.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>No hay pedidos.<br>Creá el primero en "Nuevo pedido"</p></div>`;
+    return;
+  }
+  c.innerHTML = pedidos.slice().reverse().map(p => `
+    <div class="pedido-item">
+      <div class="pedido-info">
+        <div class="pedido-id">#${p.id} · ${p.cliente}</div>
+        <div class="pedido-dest">📍 ${p.direccion}</div>
+        <div class="pedido-dest">📦 ${p.descripcion}</div>
+        ${p.repartidor ? `<div class="pedido-repartidor">🛵 ${p.repartidor}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <span class="status-badge status-${p.estado}">${statusLabel(p.estado)}</span>
+        <div class="pedido-actions">
+          <button class="btn-sm blue" onclick="abrirModal('${p.id}')">Estado</button>
+          <button class="btn-sm red" onclick="eliminarPedido('${p.id}')">Borrar</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function crearPedido() {
+  const cliente = document.getElementById('inp-cliente').value.trim();
+  const direccion = document.getElementById('inp-direccion').value.trim();
+  const descripcion = document.getElementById('inp-descripcion').value.trim();
+  const telefono = document.getElementById('inp-telefono').value.trim();
+  const repartidor = document.getElementById('inp-repartidor').value;
+
+  if (!cliente || !direccion) { toast('⚠️ Completá cliente y dirección'); return; }
+
+  const id = Date.now().toString().slice(-6);
+  pedidos.push({ id, cliente, direccion, descripcion, telefono, repartidor, estado:'pendiente', fecha: new Date().toLocaleDateString('es') });
+  guardar();
+  toast('✅ Pedido creado correctamente');
+
+  document.getElementById('inp-cliente').value = '';
+  document.getElementById('inp-direccion').value = '';
+  document.getElementById('inp-descripcion').value = '';
+  document.getElementById('inp-telefono').value = '';
+  document.getElementById('inp-repartidor').value = '';
+
+  showTab('tab-pedidos', document.querySelectorAll('.tab')[0]);
+  renderEmpresa();
+}
+
+function eliminarPedido(id) {
+  if (!confirm('¿Eliminar este pedido?')) return;
+  pedidos = pedidos.filter(p => p.id !== id);
+  guardar(); renderEmpresa(); toast('🗑️ Pedido eliminado');
+}
+
+function abrirModal(id) {
+  pedidoActual = id;
+  const p = pedidos.find(x => x.id === id);
+  document.getElementById('modal-sel-estado').value = p.estado;
+  document.getElementById('modal-estado').classList.add('show');
+}
+
+function cerrarModal() {
+  document.getElementById('modal-estado').classList.remove('show');
+  pedidoActual = null;
+}
+
+function confirmarEstado() {
+  const nuevo = document.getElementById('modal-sel-estado').value;
+  const p = pedidos.find(x => x.id === pedidoActual);
+  if (p) { p.estado = nuevo; guardar(); renderEmpresa(); toast('✅ Estado actualizado'); }
+  cerrarModal();
+}
+
+// ── REPARTIDORES ──
+function agregarRepartidor() {
+  const nombre = document.getElementById('inp-nombre-rep').value.trim();
+  const tel = document.getElementById('inp-tel-rep').value.trim();
+  if (!nombre) { toast('⚠️ Escribí el nombre'); return; }
+  repartidores.push({ id: Date.now().toString(), nombre, tel });
+  guardar();
+  document.getElementById('inp-nombre-rep').value = '';
+  document.getElementById('inp-tel-rep').value = '';
+  renderRepartidoresLista();
+  actualizarSelectRepartidor();
+  toast('✅ Repartidor agregado');
+}
+
+function renderRepartidoresLista() {
+  const c = document.getElementById('lista-repartidores');
+  if (!repartidores.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">🛵</div><p>No hay repartidores.<br>Agregá el primero arriba.</p></div>`;
+    return;
+  }
+  c.innerHTML = repartidores.map(r => `
+    <div class="pedido-item">
+      <div class="pedido-info">
+        <div class="pedido-id">🛵 ${r.nombre}</div>
+        ${r.tel ? `<div class="pedido-dest">📞 ${r.tel}</div>` : ''}
+      </div>
+      <button class="btn-sm red" onclick="eliminarRepartidor('${r.id}')">Borrar</button>
+    </div>
+  `).join('');
+}
+
+function eliminarRepartidor(id) {
+  if (!confirm('¿Eliminar este repartidor?')) return;
+  repartidores = repartidores.filter(r => r.id !== id);
+  guardar(); renderRepartidoresLista(); actualizarSelectRepartidor(); toast('🗑️ Repartidor eliminado');
+}
+
+function actualizarSelectRepartidor() {
+  const sel = document.getElementById('inp-repartidor');
+  sel.innerHTML = '<option value="">Sin asignar</option>' +
+    repartidores.map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
+}
+
+// ── REPARTIDOR ──
+function renderRepartidor() {
+  const sel = document.getElementById('sel-repartidor');
+  sel.innerHTML = '<option value="">Elegí tu nombre...</option>' +
+    repartidores.map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
+  if (!repartidores.length) {
+    sel.innerHTML = '<option value="">No hay repartidores registrados</option>';
+  }
+}
+
+function seleccionarRep() {
+  const val = document.getElementById('sel-repartidor').value;
+  if (!val) { toast('⚠️ Elegí tu nombre'); return; }
+  repActual = val;
+  document.getElementById('rep-selector-card').style.display = 'none';
+  document.getElementById('rep-panel').style.display = 'block';
+  renderEntregas();
+}
+
+function renderEntregas() {
+  const misPedidos = pedidos.filter(p => p.repartidor === repActual);
+  const c = document.getElementById('lista-entregas');
+
+  document.getElementById('rep-stat-total').textContent = misPedidos.length;
+  document.getElementById('rep-stat-pendiente').textContent = misPedidos.filter(p=>p.estado==='pendiente').length;
+  document.getElementById('rep-stat-camino').textContent = misPedidos.filter(p=>p.estado==='en-camino').length;
+  document.getElementById('rep-stat-entregado').textContent = misPedidos.filter(p=>p.estado==='entregado').length;
+
+  if (!misPedidos.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">🎉</div><p>No tenés pedidos asignados hoy.</p></div>`;
+    return;
+  }
+
+  c.innerHTML = misPedidos.map(p => `
+    <div class="entrega-card">
+      <div class="entrega-header">
+        <div>
+          <div class="entrega-num">#${p.id}</div>
+          <div style="color:var(--muted);font-size:.82rem">${p.fecha || ''}</div>
+        </div>
+        <span class="status-badge status-${p.estado}">${statusLabel(p.estado)}</span>
+      </div>
+      <div class="entrega-datos">
+        <div class="dato">
+          <div class="dato-icon">👤</div>
+          <div><div class="dato-label">Cliente</div><div class="dato-text">${p.cliente}</div></div>
+        </div>
+        <div class="dato">
+          <div class="dato-icon">📍</div>
+          <div><div class="dato-label">Dirección</div><div class="dato-text">${p.direccion}</div></div>
+        </div>
+        ${p.descripcion ? `<div class="dato"><div class="dato-icon">📦</div><div><div class="dato-label">Descripción</div><div class="dato-text">${p.descripcion}</div></div></div>` : ''}
+        ${p.telefono ? `<div class="dato"><div class="dato-icon">📞</div><div><div class="dato-label">Teléfono</div><div class="dato-text">${p.telefono}</div></div></div>` : ''}
+      </div>
+      <div class="entrega-actions">
+        ${p.estado === 'pendiente' ? `<button class="btn btn-primary" style="flex:1;padding:11px" onclick="cambiarEstadoRep('${p.id}','en-camino')">🚚 Salir a entregar</button>` : ''}
+        ${p.estado === 'en-camino' ? `<button class="btn btn-primary" style="flex:1;padding:11px;background:linear-gradient(90deg,#16a34a,#22c55e)" onclick="cambiarEstadoRep('${p.id}','entregado')">✅ Marcar entregado</button>` : ''}
+        ${p.estado === 'entregado' ? `<div style="color:var(--green);font-weight:600;font-size:.9rem">✅ Entrega completada</div>` : ''}
+        ${p.telefono ? `<a href="tel:${p.telefono}" class="btn-sm blue" style="text-decoration:none;padding:11px 16px">📞 Llamar</a>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function cambiarEstadoRep(id, estado) {
+  const p = pedidos.find(x => x.id === id);
+  if (p) { p.estado = estado; guardar(); renderEntregas(); toast('✅ Estado actualizado'); }
+}
+
+// Cerrar modal click fuera
+document.getElementById('modal-estado').addEventListener('click', function(e) {
+  if (e.target === this) cerrarModal();
+});
+</script>
+</body>
+</html>
