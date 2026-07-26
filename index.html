@@ -421,7 +421,7 @@ body::before {
     <input class="code-input" id="inp-codigo" placeholder="EMP-0000" maxlength="10" oninput="this.value=this.value.toUpperCase()"/>
     <div class="login-error" id="login-error">❌ Código incorrecto. Verificá con el administrador.</div>
     <button class="btn btn-primary btn-full" onclick="verificarCodigo()">Entrar →</button>
-    <div class="admin-link" onclick="mostrarAdmin()">⚙️ Soy el administrador</div>
+    <button type="button" class="admin-link" onclick="mostrarAdmin()" style="background:none;border:none;font-family:inherit;">⚙️ Soy el administrador</button>
   </div>
 </div>
 
@@ -470,7 +470,7 @@ body::before {
 </div>
 
 <!-- ══ PANTALLA INICIO ══ -->
-<div id="inicio" class="screen active">
+<div id="inicio" class="screen">
   <div class="logo-wrap">
     <div class="logo">⚡ Fullentrega</div>
     <div class="logo-sub">Sistema de Gestión de Entregas</div>
@@ -684,7 +684,7 @@ let repartidores = JSON.parse(localStorage.getItem('fe_repartidores') || '[]');
 let codigos = JSON.parse(localStorage.getItem('fe_codigos') || '[]');
 let pedidoActual = null;
 let repActual = null;
-const ADMIN_PASS = 'fullentrega2024';
+const ADMIN_PASS = 'fullentrega';
 
 // Códigos por defecto
 if (!codigos.length) {
@@ -715,6 +715,10 @@ function verificarCodigo() {
 
 document.getElementById('inp-codigo').addEventListener('keydown', e => {
   if (e.key === 'Enter') verificarCodigo();
+});
+
+document.querySelectorAll('.admin-link').forEach(el => {
+  el.addEventListener('click', mostrarAdmin);
 });
 
 // ── ADMIN ──
