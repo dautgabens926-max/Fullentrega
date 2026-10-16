@@ -479,10 +479,14 @@ body::before {
           </div>
           <div class="form-group">
             <label class="form-label">Tipo de acceso</label>
-            <select class="form-select" id="cod-tipo">
+            <select class="form-select" id="cod-tipo" onchange="toggleEmpresaCodigo()">
               <option value="empresa">🏢 Empresa</option>
               <option value="repartidor">🛵 Repartidor</option>
             </select>
+          </div>
+          <div class="form-group" id="cod-empresa-grupo" style="display:none">
+            <label class="form-label">Empresa del repartidor</label>
+            <select class="form-select" id="cod-empresa"></select>
           </div>
           <div class="form-group">
             <label class="form-label">Código personalizado (opcional)</label>
@@ -706,50 +710,80 @@ body::before {
 <div class="toast" id="toast"></div>
 
 <script>
+// ── CONEXIÓN A SUPABASE ──
+// Los datos viven en Supabase: la empresa y sus repartidores ven lo mismo desde cualquier aparato.
+// Pega aquí la "publishable key" (o la "anon key") del proyecto Fullentrega:
+// Supabase → Project Settings → API Keys.
+const SUPABASE_URL = 'https://ltwtutgdbrtjfsjgezzu.supabase.co';
+const SUPABASE_KEY = '';
+const REFRESCO_MS = 10000;
+
 // ── ESTADO GLOBAL ──
-let pedidos = JSON.parse(localStorage.getItem('fe_pedidos') || '[]');
-let repartidores = JSON.parse(localStorage.getItem('fe_repartidores') || '[]');
-let codigos = JSON.parse(localStorage.getItem('fe_codigos') || '[]');
+let sesion = null;          // { codigo, nombre, tipo, empresa }
+let pedidos = [];
+let repartidores = [];
+let codigos = [];
+let adminPass = '';
 let pedidoActual = null;
 let repActual = null;
-// Hash SHA-256 de la contraseña de administrador (la contraseña no queda escrita en el código)
-const ADMIN_PASS_HASH = '89cffe6c91d69029fd32f335139e73888daf18d8b983f41ba9013c97a5dad6a6';
+let timerRefresco = null;
+
+const MENSAJES_ERROR = {
+  codigo_invalido: 'Tu código ya no es válido. Vuelve a entrar.',
+  sin_permiso: 'No tienes permiso para hacer esto.',
+  datos_incompletos: 'Faltan datos obligatorios.',
+  codigo_existe: 'Ese código ya existe.',
+  codigo_corto: 'El código debe tener al menos 6 caracteres.',
+  empresa_invalida: 'Elige la empresa del repartidor.',
+  tipo_invalido: 'Tipo de acceso no válido.'
+};
 
 // Escapa texto ingresado por usuarios antes de mostrarlo en pantalla
 function esc(v) {
   return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 
-async function sha256(texto) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+function guardarLocal(clave, valor) {
+  try { valor === null ? localStorage.removeItem(clave) : localStorage.setItem(clave, valor); } catch (e) {}
+}
+function leerLocal(clave) {
+  try { return localStorage.getItem(clave); } catch (e) { return null; }
 }
 
-// Códigos por defecto
-if (!codigos.length) {
-  codigos = [
-    { id:'1', nombre:'Demo Empresa', tipo:'empresa', codigo:'EMP-DEMO' },
-    { id:'2', nombre:'Demo Repartidor', tipo:'repartidor', codigo:'REP-DEMO' },
-  ];
-  localStorage.setItem('fe_codigos', JSON.stringify(codigos));
+// Llama una función de la base de datos (solo se usan funciones que validan el código de acceso)
+async function rpc(fn, params) {
+  if (!SUPABASE_KEY) throw new Error('La app aún no está conectada a la base de datos.');
+  const headers = { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY };
+  if (SUPABASE_KEY.startsWith('eyJ')) headers['Authorization'] = 'Bearer ' + SUPABASE_KEY;
+  let res;
+  try {
+    res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers, body: JSON.stringify(params || {}) });
+  } catch (e) {
+    throw new Error('Sin conexión. Revisa tu internet.');
+  }
+  const texto = await res.text();
+  const data = texto ? JSON.parse(texto) : null;
+  if (!res.ok) {
+    const clave = (data && data.message) || '';
+    throw new Error(MENSAJES_ERROR[clave] || 'No se pudo completar. Intenta de nuevo.');
+  }
+  return data;
 }
 
-function guardar() {
-  localStorage.setItem('fe_pedidos', JSON.stringify(pedidos));
-  localStorage.setItem('fe_repartidores', JSON.stringify(repartidores));
-  localStorage.setItem('fe_codigos', JSON.stringify(codigos));
-}
+function fallo(e) { toast('❌ ' + e.message); }
 
 // ── LOGIN ──
-function verificarCodigo() {
+async function verificarCodigo() {
   const cod = document.getElementById('inp-codigo').value.trim().toUpperCase();
-  const encontrado = codigos.find(c => c.codigo === cod);
-  if (!encontrado) {
-    document.getElementById('login-error').classList.add('show');
-    return;
-  }
-  document.getElementById('login-error').classList.remove('show');
-  entrar(encontrado.tipo);
+  if (!cod) return;
+  try {
+    const s = await rpc('fe_login', { p_codigo: cod });
+    if (!s) { document.getElementById('login-error').classList.add('show'); return; }
+    document.getElementById('login-error').classList.remove('show');
+    sesion = s;
+    guardarLocal('fe_sesion', s.codigo);
+    await entrar(s.tipo);
+  } catch (e) { fallo(e); }
 }
 
 document.getElementById('inp-codigo').addEventListener('keydown', e => {
@@ -758,20 +792,19 @@ document.getElementById('inp-codigo').addEventListener('keydown', e => {
 
 function probarDemo() {
   document.getElementById('inp-codigo').value = 'EMP-DEMO';
-  if (!codigos.find(c => c.codigo === 'EMP-DEMO')) {
-    codigos.push({ id: 'demo-emp', nombre: 'Demo Empresa', tipo: 'empresa', codigo: 'EMP-DEMO' });
-    guardar();
-  }
   verificarCodigo();
 }
 
 // ── ADMIN ──
 function mostrarAdmin() {
+  detenerRefresco();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('admin-panel').classList.add('active');
 }
 
 function salirAdmin() {
+  adminPass = '';
+  codigos = [];
   document.getElementById('admin-codigos').style.display = 'none';
   document.getElementById('admin-pass').value = '';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -780,36 +813,60 @@ function salirAdmin() {
 
 async function verificarAdmin() {
   const pass = document.getElementById('admin-pass').value;
-  if (await sha256(pass) !== ADMIN_PASS_HASH) { toast('❌ Contraseña incorrecta'); return; }
-  document.getElementById('admin-codigos').style.display = 'block';
+  try {
+    codigos = await rpc('fe_admin_codigos', { p_pass: pass });
+    adminPass = pass;
+    document.getElementById('admin-codigos').style.display = 'block';
+    renderCodigos();
+  } catch (e) { toast('❌ Contraseña incorrecta'); }
+}
+
+async function cargarCodigos() {
+  codigos = await rpc('fe_admin_codigos', { p_pass: adminPass });
   renderCodigos();
 }
 
-function crearCodigo() {
+function toggleEmpresaCodigo() {
+  const esRep = document.getElementById('cod-tipo').value === 'repartidor';
+  document.getElementById('cod-empresa-grupo').style.display = esRep ? 'block' : 'none';
+}
+
+async function crearCodigo() {
   const nombre = document.getElementById('cod-nombre').value.trim();
   const tipo = document.getElementById('cod-tipo').value;
-  let custom = document.getElementById('cod-custom').value.trim().toUpperCase();
+  const custom = document.getElementById('cod-custom').value.trim().toUpperCase();
+  const empresa = document.getElementById('cod-empresa').value;
   if (!nombre) { toast('⚠️ Escribe el nombre del cliente'); return; }
-  if (!custom) {
-    const prefix = tipo === 'empresa' ? 'EMP' : 'REP';
-    custom = prefix + '-' + Math.random().toString(36).substring(2,6).toUpperCase();
-  }
-  if (codigos.find(c => c.codigo === custom)) { toast('⚠️ Ese código ya existe'); return; }
-  codigos.push({ id: Date.now().toString(), nombre, tipo, codigo: custom });
-  guardar();
-  document.getElementById('cod-nombre').value = '';
-  document.getElementById('cod-custom').value = '';
-  renderCodigos();
-  toast('✅ Código creado: ' + custom);
+  if (tipo === 'repartidor' && !empresa) { toast('⚠️ Elige la empresa del repartidor'); return; }
+  try {
+    const nuevo = await rpc('fe_admin_crear_codigo', {
+      p_pass: adminPass, p_nombre: nombre, p_tipo: tipo, p_codigo: custom, p_empresa: empresa
+    });
+    document.getElementById('cod-nombre').value = '';
+    document.getElementById('cod-custom').value = '';
+    await cargarCodigos();
+    toast('✅ Código creado: ' + nuevo);
+  } catch (e) { fallo(e); }
 }
 
-function eliminarCodigo(id) {
-  if (!confirm('¿Eliminar este código?')) return;
-  codigos = codigos.filter(c => c.id !== id);
-  guardar(); renderCodigos(); toast('🗑️ Código eliminado');
+async function eliminarCodigo(codigo) {
+  const c = codigos.find(x => x.codigo === codigo);
+  const aviso = c && c.tipo === 'empresa'
+    ? '¿Eliminar esta empresa? También se borran sus pedidos, repartidores y códigos de repartidor.'
+    : '¿Eliminar este código?';
+  if (!confirm(aviso)) return;
+  try {
+    await rpc('fe_admin_eliminar_codigo', { p_pass: adminPass, p_codigo: codigo });
+    await cargarCodigos();
+    toast('🗑️ Código eliminado');
+  } catch (e) { fallo(e); }
 }
 
 function renderCodigos() {
+  const empresas = codigos.filter(c => c.tipo === 'empresa');
+  document.getElementById('cod-empresa').innerHTML = '<option value="">Elige una empresa...</option>' +
+    empresas.map(e => `<option value="${esc(e.codigo)}">${esc(e.nombre)} (${esc(e.codigo)})</option>`).join('');
+
   const c = document.getElementById('lista-codigos');
   if (!codigos.length) { c.innerHTML = '<div class="empty"><p>No hay códigos.</p></div>'; return; }
   c.innerHTML = codigos.map(cod => `
@@ -817,22 +874,67 @@ function renderCodigos() {
       <div class="pedido-info">
         <div class="pedido-id">${cod.tipo === 'empresa' ? '🏢' : '🛵'} ${esc(cod.nombre)}</div>
         <div class="pedido-dest" style="font-family:monospace;font-size:1rem;color:var(--orange2);letter-spacing:2px">${esc(cod.codigo)}</div>
-        <div class="pedido-dest">${cod.tipo === 'empresa' ? 'Acceso Empresa' : 'Acceso Repartidor'}</div>
+        <div class="pedido-dest">${cod.tipo === 'empresa' ? 'Acceso Empresa' : 'Repartidor de ' + esc(cod.empresa_nombre || cod.empresa)}</div>
       </div>
-      <button class="btn-sm red" onclick="eliminarCodigo('${cod.id}')">Borrar</button>
+      <button class="btn-sm red" onclick="eliminarCodigo('${esc(cod.codigo)}')">Borrar</button>
     </div>
   `).join('');
 }
 
+// ── DATOS COMPARTIDOS ──
+async function cargarDatos() {
+  if (!sesion) return;
+  try {
+    const d = await rpc('fe_datos', { p_codigo: sesion.codigo });
+    pedidos = (d.pedidos || []).map(p => ({ ...p, fecha: new Date(p.creado).toLocaleDateString('es-CL') }));
+    repartidores = d.repartidores || [];
+  } catch (e) {
+    if (e.message === MENSAJES_ERROR.codigo_invalido) { toast('❌ ' + e.message); volver(); }
+    throw e;
+  }
+}
+
+function iniciarRefresco() {
+  detenerRefresco();
+  timerRefresco = setInterval(async () => {
+    if (document.hidden || !sesion) return;
+    try {
+      await cargarDatos();
+      if (sesion.tipo === 'empresa') renderEmpresa();
+      else if (repActual) renderEntregas(); else renderRepartidor();
+    } catch (e) {}
+  }, REFRESCO_MS);
+}
+
+function detenerRefresco() {
+  if (timerRefresco) clearInterval(timerRefresco);
+  timerRefresco = null;
+}
+
 // ── NAVEGACIÓN ──
-function entrar(rol) {
+async function entrar(rol) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(rol).classList.add('active');
+  try { await cargarDatos(); } catch (e) { fallo(e); }
   if (rol === 'empresa') renderEmpresa();
-  if (rol === 'repartidor') renderRepartidor();
+  if (rol === 'repartidor') {
+    renderRepartidor();
+    const guardado = leerLocal('fe_rep_' + sesion.codigo);
+    if (guardado && repartidores.some(r => r.nombre === guardado)) {
+      document.getElementById('sel-repartidor').value = guardado;
+      seleccionarRep();
+    }
+  }
+  iniciarRefresco();
 }
 
 function volver() {
+  detenerRefresco();
+  if (sesion) guardarLocal('fe_rep_' + sesion.codigo, null);
+  sesion = null;
+  pedidos = [];
+  repartidores = [];
+  guardarLocal('fe_sesion', null);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('login').classList.add('active');
   document.getElementById('inp-codigo').value = '';
@@ -893,17 +995,17 @@ function renderPedidos() {
         ${p.repartidor ? `<div class="pedido-repartidor">🛵 ${esc(p.repartidor)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-        <span class="status-badge status-${p.estado}">${statusLabel(p.estado)}</span>
+        <span class="status-badge status-${esc(p.estado)}">${statusLabel(p.estado)}</span>
         <div class="pedido-actions">
-          <button class="btn-sm blue" onclick="abrirModal('${p.id}')">Estado</button>
-          <button class="btn-sm red" onclick="eliminarPedido('${p.id}')">Borrar</button>
+          <button class="btn-sm blue" onclick="abrirModal(${Number(p.id)})">Estado</button>
+          <button class="btn-sm red" onclick="eliminarPedido(${Number(p.id)})">Borrar</button>
         </div>
       </div>
     </div>
   `).join('');
 }
 
-function crearPedido() {
+async function crearPedido() {
   const cliente = document.getElementById('inp-cliente').value.trim();
   const direccion = document.getElementById('inp-direccion').value.trim();
   const descripcion = document.getElementById('inp-descripcion').value.trim();
@@ -912,9 +1014,12 @@ function crearPedido() {
 
   if (!cliente || !direccion) { toast('⚠️ Completa cliente y dirección'); return; }
 
-  const id = Date.now().toString().slice(-6);
-  pedidos.push({ id, cliente, direccion, descripcion, telefono, repartidor, estado:'pendiente', fecha: new Date().toLocaleDateString('es') });
-  guardar();
+  try {
+    await rpc('fe_crear_pedido', {
+      p_codigo: sesion.codigo, p_cliente: cliente, p_direccion: direccion,
+      p_descripcion: descripcion, p_telefono: telefono, p_repartidor: repartidor
+    });
+  } catch (e) { fallo(e); return; }
   toast('✅ Pedido creado correctamente');
 
   document.getElementById('inp-cliente').value = '';
@@ -924,18 +1029,24 @@ function crearPedido() {
   document.getElementById('inp-repartidor').value = '';
 
   showTab('tab-pedidos', document.querySelectorAll('.tab')[0]);
+  try { await cargarDatos(); } catch (e) {}
   renderEmpresa();
 }
 
-function eliminarPedido(id) {
+async function eliminarPedido(id) {
   if (!confirm('¿Eliminar este pedido?')) return;
-  pedidos = pedidos.filter(p => p.id !== id);
-  guardar(); renderEmpresa(); toast('🗑️ Pedido eliminado');
+  try {
+    await rpc('fe_eliminar_pedido', { p_codigo: sesion.codigo, p_id: id });
+    await cargarDatos();
+    renderEmpresa();
+    toast('🗑️ Pedido eliminado');
+  } catch (e) { fallo(e); }
 }
 
 function abrirModal(id) {
   pedidoActual = id;
-  const p = pedidos.find(x => x.id === id);
+  const p = pedidos.find(x => Number(x.id) === id);
+  if (!p) return;
   document.getElementById('modal-sel-estado').value = p.estado;
   document.getElementById('modal-estado').classList.add('show');
 }
@@ -945,20 +1056,27 @@ function cerrarModal() {
   pedidoActual = null;
 }
 
-function confirmarEstado() {
+async function confirmarEstado() {
   const nuevo = document.getElementById('modal-sel-estado').value;
-  const p = pedidos.find(x => x.id === pedidoActual);
-  if (p) { p.estado = nuevo; guardar(); renderEmpresa(); toast('✅ Estado actualizado'); }
+  const id = pedidoActual;
   cerrarModal();
+  try {
+    await rpc('fe_estado_pedido', { p_codigo: sesion.codigo, p_id: id, p_estado: nuevo });
+    await cargarDatos();
+    renderEmpresa();
+    toast('✅ Estado actualizado');
+  } catch (e) { fallo(e); }
 }
 
 // ── REPARTIDORES ──
-function agregarRepartidor() {
+async function agregarRepartidor() {
   const nombre = document.getElementById('inp-nombre-rep').value.trim();
   const tel = document.getElementById('inp-tel-rep').value.trim();
   if (!nombre) { toast('⚠️ Escribe el nombre'); return; }
-  repartidores.push({ id: Date.now().toString(), nombre, tel });
-  guardar();
+  try {
+    await rpc('fe_agregar_repartidor', { p_codigo: sesion.codigo, p_nombre: nombre, p_tel: tel });
+    await cargarDatos();
+  } catch (e) { fallo(e); return; }
   document.getElementById('inp-nombre-rep').value = '';
   document.getElementById('inp-tel-rep').value = '';
   renderRepartidoresLista();
@@ -978,37 +1096,45 @@ function renderRepartidoresLista() {
         <div class="pedido-id">🛵 ${esc(r.nombre)}</div>
         ${r.tel ? `<div class="pedido-dest">📞 ${esc(r.tel)}</div>` : ''}
       </div>
-      <button class="btn-sm red" onclick="eliminarRepartidor('${r.id}')">Borrar</button>
+      <button class="btn-sm red" onclick="eliminarRepartidor('${esc(r.id)}')">Borrar</button>
     </div>
   `).join('');
 }
 
-function eliminarRepartidor(id) {
+async function eliminarRepartidor(id) {
   if (!confirm('¿Eliminar este repartidor?')) return;
-  repartidores = repartidores.filter(r => r.id !== id);
-  guardar(); renderRepartidoresLista(); actualizarSelectRepartidor(); toast('🗑️ Repartidor eliminado');
+  try {
+    await rpc('fe_eliminar_repartidor', { p_codigo: sesion.codigo, p_id: id });
+    await cargarDatos();
+    renderRepartidoresLista(); actualizarSelectRepartidor(); toast('🗑️ Repartidor eliminado');
+  } catch (e) { fallo(e); }
 }
 
 function actualizarSelectRepartidor() {
   const sel = document.getElementById('inp-repartidor');
+  const actual = sel.value;
   sel.innerHTML = '<option value="">Sin asignar</option>' +
     repartidores.map(r => `<option value="${esc(r.nombre)}">${esc(r.nombre)}</option>`).join('');
+  sel.value = actual;
 }
 
 // ── REPARTIDOR ──
 function renderRepartidor() {
   const sel = document.getElementById('sel-repartidor');
+  const actual = sel.value;
   sel.innerHTML = '<option value="">Elige tu nombre...</option>' +
     repartidores.map(r => `<option value="${esc(r.nombre)}">${esc(r.nombre)}</option>`).join('');
   if (!repartidores.length) {
     sel.innerHTML = '<option value="">No hay repartidores registrados</option>';
   }
+  sel.value = actual;
 }
 
 function seleccionarRep() {
   const val = document.getElementById('sel-repartidor').value;
   if (!val) { toast('⚠️ Elige tu nombre'); return; }
   repActual = val;
+  if (sesion) guardarLocal('fe_rep_' + sesion.codigo, val);
   document.getElementById('rep-selector-card').style.display = 'none';
   document.getElementById('rep-panel').style.display = 'block';
   renderEntregas();
@@ -1035,7 +1161,7 @@ function renderEntregas() {
           <div class="entrega-num">#${esc(p.id)}</div>
           <div style="color:var(--muted);font-size:.82rem">${esc(p.fecha)}</div>
         </div>
-        <span class="status-badge status-${p.estado}">${statusLabel(p.estado)}</span>
+        <span class="status-badge status-${esc(p.estado)}">${statusLabel(p.estado)}</span>
       </div>
       <div class="entrega-datos">
         <div class="dato">
@@ -1050,8 +1176,8 @@ function renderEntregas() {
         ${p.telefono ? `<div class="dato"><div class="dato-icon">📞</div><div><div class="dato-label">Teléfono</div><div class="dato-text">${esc(p.telefono)}</div></div></div>` : ''}
       </div>
       <div class="entrega-actions">
-        ${p.estado === 'pendiente' ? `<button class="btn btn-primary" style="flex:1;padding:11px" onclick="cambiarEstadoRep('${p.id}','en-camino')">🚚 Salir a entregar</button>` : ''}
-        ${p.estado === 'en-camino' ? `<button class="btn btn-primary" style="flex:1;padding:11px;background:linear-gradient(90deg,#16a34a,#22c55e)" onclick="cambiarEstadoRep('${p.id}','entregado')">✅ Marcar entregado</button>` : ''}
+        ${p.estado === 'pendiente' ? `<button class="btn btn-primary" style="flex:1;padding:11px" onclick="cambiarEstadoRep(${Number(p.id)},'en-camino')">🚚 Salir a entregar</button>` : ''}
+        ${p.estado === 'en-camino' ? `<button class="btn btn-primary" style="flex:1;padding:11px;background:linear-gradient(90deg,#16a34a,#22c55e)" onclick="cambiarEstadoRep(${Number(p.id)},'entregado')">✅ Marcar entregado</button>` : ''}
         ${p.estado === 'entregado' ? `<div style="color:var(--green);font-weight:600;font-size:.9rem">✅ Entrega completada</div>` : ''}
         ${p.telefono ? `<a href="tel:${esc(p.telefono.replace(/[^\d+]/g, ''))}" class="btn-sm blue" style="text-decoration:none;padding:11px 16px">📞 Llamar</a>` : ''}
       </div>
@@ -1059,15 +1185,27 @@ function renderEntregas() {
   `).join('');
 }
 
-function cambiarEstadoRep(id, estado) {
-  const p = pedidos.find(x => x.id === id);
-  if (p) { p.estado = estado; guardar(); renderEntregas(); toast('✅ Estado actualizado'); }
+async function cambiarEstadoRep(id, estado) {
+  try {
+    await rpc('fe_estado_pedido', { p_codigo: sesion.codigo, p_id: id, p_estado: estado });
+    await cargarDatos();
+    renderEntregas();
+    toast('✅ Estado actualizado');
+  } catch (e) { fallo(e); }
 }
 
 // Cerrar modal click fuera
 document.getElementById('modal-estado').addEventListener('click', function(e) {
   if (e.target === this) cerrarModal();
 });
+
+// Al volver a abrir la app, entra directo con el último código usado
+(async function restaurarSesion() {
+  const cod = leerLocal('fe_sesion');
+  if (!cod || !SUPABASE_KEY) return;
+  document.getElementById('inp-codigo').value = cod;
+  await verificarCodigo();
+})();
 </script>
 </body>
 </html>
