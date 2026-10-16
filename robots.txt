@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /mensajes.html
+
+Sitemap: https://fullentrega.vercel.app/sitemap.xml

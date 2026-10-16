@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="google-site-verification" content="C8u3lNfwJoffDdZ00S4ZEpdqSyVjD9cuUM-ZonBJePg" />
 <title>Fullentrega – Sistema de Gestión de Entregas para Restaurantes y Negocios en Chile</title>
-<meta name="description" content="Fullentrega es la app para gestionar entregas y repartidores de tu restaurante o negocio en Chile. Sin instalar nada, asigná pedidos y seguí las entregas en tiempo real. Planes desde $15/mes."/>
+<meta name="description" content="Fullentrega es la app para gestionar entregas y repartidores de tu restaurante o negocio en Chile. Sin instalar nada, asigna pedidos y sigue las entregas en tiempo real. Planes desde $15/mes."/>
 <meta name="keywords" content="gestión de entregas, delivery restaurantes Chile, app repartidores, sistema de pedidos, gestión de repartos Santiago"/>
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://fullentrega.vercel.app/"/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="Fullentrega – Gestión de Entregas para Restaurantes"/>
-<meta property="og:description" content="Gestioná los repartos de tu restaurante o negocio sin instalar nada. Asigná pedidos, seguí entregas en tiempo real y organizá a tus repartidores. Probalo gratis."/>
+<meta property="og:description" content="Gestiona los repartos de tu restaurante o negocio sin instalar nada. Asigna pedidos, sigue entregas en tiempo real y organiza a tus repartidores. Pruébalo gratis."/>
 <meta property="og:url" content="https://fullentrega.vercel.app/"/>
 <meta property="og:locale" content="es_CL"/>
 <meta name="twitter:card" content="summary"/>
@@ -51,8 +51,10 @@ body::before {
   pointer-events:none; z-index:0;
 }
 
-.screen { display:none; position:relative; z-index:1; }
-.screen.active { display:block; }
+.screen { position:relative; z-index:1; }
+/* !important: #login y #inicio usan display:flex con un selector más fuerte y se quedaban siempre visibles */
+.screen:not(.active) { display:none !important; }
+.screen.active:not(#login):not(#inicio) { display:block; }
 
 /* ── PANTALLA LOGIN ── */
 #login {
@@ -97,6 +99,17 @@ body::before {
   display:none;
 }
 .login-error.show { display:block; }
+
+.demo-btn {
+  display:block; width:100%; margin-top:12px; padding:12px;
+  background:transparent; border:1px solid var(--border); border-radius:12px;
+  color:var(--text); font-family:'DM Sans',sans-serif; font-size:.88rem;
+  cursor:pointer; transition:border-color .2s;
+}
+.demo-btn:hover { border-color:var(--orange); }
+
+.login-foot { margin-top:24px; color:var(--muted); font-size:.85rem; }
+.login-foot a { color:var(--orange2); }
 
 .admin-link {
   margin-top:20px; color:var(--muted); font-size:.78rem; cursor:pointer;
@@ -357,7 +370,7 @@ body::before {
   background:var(--card); border:1px solid var(--border);
   color:var(--text); padding:14px 24px; border-radius:14px;
   font-size:.9rem; font-weight:500; z-index:999;
-  transition:transform .3s ease; white-space:nowrap;
+  transition:transform .3s ease; max-width:calc(100vw - 32px); text-align:center;
   box-shadow:0 8px 32px rgba(0,0,0,.4);
 }
 .toast.show { transform:translateX(-50%) translateY(0); }
@@ -429,13 +442,15 @@ body::before {
   <div class="login-card">
     <div class="login-logo">⚡ Fullentrega</div>
     <div class="login-sub">Sistema de Entregas</div>
-    <div class="login-title">🔐 Ingresá tu código</div>
-    <div class="login-desc">Escribí el código de acceso que te dio el administrador</div>
+    <div class="login-title">🔐 Ingresa tu código</div>
+    <div class="login-desc">Escribe el código de acceso que te dio el administrador</div>
     <input class="code-input" id="inp-codigo" placeholder="EMP-0000" maxlength="10" oninput="this.value=this.value.toUpperCase()"/>
-    <div class="login-error" id="login-error">❌ Código incorrecto. Verificá con el administrador.</div>
+    <div class="login-error" id="login-error">❌ Código incorrecto. Verifica con el administrador.</div>
     <button class="btn btn-primary btn-full" onclick="verificarCodigo()">Entrar →</button>
+    <button type="button" class="demo-btn" onclick="probarDemo()">👀 ¿Primera vez? Prueba la demo gratis</button>
     <button type="button" class="admin-link" onclick="mostrarAdmin()" style="background:none;border:none;font-family:inherit;">⚙️ Soy el administrador</button>
   </div>
+  <p class="login-foot">¿Aún no tienes código? <a href="/Precios.html">Ver planes y precios</a></p>
 </div>
 
 <!-- ══ PANTALLA ADMIN ══ -->
@@ -488,18 +503,18 @@ body::before {
     <div class="logo">⚡ Fullentrega</div>
     <div class="logo-sub">Sistema de Gestión de Entregas</div>
   </div>
-  <div class="tagline">Gestioná tus entregas de forma <em>profesional</em></div>
-  <p class="sub-text">Sin instalar nada · Solo elegí tu rol y empezá</p>
+  <div class="tagline">Gestiona tus entregas de forma <em>profesional</em></div>
+  <p class="sub-text">Sin instalar nada · Solo elige tu rol y empieza</p>
   <div class="roles">
     <div class="role-btn empresa" onclick="entrar('empresa')">
       <div class="role-icon">🏢</div>
       <div class="role-name">Empresa</div>
-      <div class="role-desc">Creá pedidos, asigná repartidores y seguí las entregas</div>
+      <div class="role-desc">Crea pedidos, asigna repartidores y sigue las entregas</div>
     </div>
     <div class="role-btn repartidor" onclick="entrar('repartidor')">
       <div class="role-icon">🛵</div>
       <div class="role-name">Repartidor</div>
-      <div class="role-desc">Mirá tus pedidos del día y marcá las entregas</div>
+      <div class="role-desc">Mira tus pedidos del día y marca las entregas</div>
     </div>
   </div>
 </div>
@@ -550,7 +565,7 @@ body::before {
         <div id="lista-pedidos">
           <div class="empty">
             <div class="empty-icon">📭</div>
-            <p>No hay pedidos todavía.<br>Creá el primero en "Nuevo pedido"</p>
+            <p>No hay pedidos todavía.<br>Crea el primero en "Nuevo pedido"</p>
           </div>
         </div>
       </div>
@@ -602,7 +617,7 @@ body::before {
         <div id="lista-repartidores">
           <div class="empty">
             <div class="empty-icon">🛵</div>
-            <p>No hay repartidores.<br>Agregá el primero arriba.</p>
+            <p>No hay repartidores.<br>Agrega el primero arriba.</p>
           </div>
         </div>
       </div>
@@ -625,11 +640,11 @@ body::before {
 
     <!-- Selector repartidor -->
     <div class="card" id="rep-selector-card">
-      <div class="card-title">👤 ¿Quién sos?</div>
+      <div class="card-title">👤 ¿Quién eres?</div>
       <div class="form-group">
-        <label class="form-label">Seleccioná tu nombre</label>
+        <label class="form-label">Selecciona tu nombre</label>
         <select class="form-select" id="sel-repartidor">
-          <option value="">Elegí tu nombre...</option>
+          <option value="">Elige tu nombre...</option>
         </select>
       </div>
       <button class="btn btn-primary btn-full" onclick="seleccionarRep()">Entrar</button>
@@ -659,7 +674,7 @@ body::before {
       <div id="lista-entregas">
         <div class="empty">
           <div class="empty-icon">🎉</div>
-          <p>No tenés pedidos asignados hoy.</p>
+          <p>No tienes pedidos asignados hoy.</p>
         </div>
       </div>
     </div>
@@ -697,7 +712,18 @@ let repartidores = JSON.parse(localStorage.getItem('fe_repartidores') || '[]');
 let codigos = JSON.parse(localStorage.getItem('fe_codigos') || '[]');
 let pedidoActual = null;
 let repActual = null;
-const ADMIN_PASS = 'fullentrega';
+// Hash SHA-256 de la contraseña de administrador (la contraseña no queda escrita en el código)
+const ADMIN_PASS_HASH = '118c68b55c91c126ec4395a3df82ec5d75f493a8e660b30f920390f44607efb1';
+
+// Escapa texto ingresado por usuarios antes de mostrarlo en pantalla
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+async function sha256(texto) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // Códigos por defecto
 if (!codigos.length) {
@@ -730,9 +756,14 @@ document.getElementById('inp-codigo').addEventListener('keydown', e => {
   if (e.key === 'Enter') verificarCodigo();
 });
 
-document.querySelectorAll('.admin-link').forEach(el => {
-  el.addEventListener('click', mostrarAdmin);
-});
+function probarDemo() {
+  document.getElementById('inp-codigo').value = 'EMP-DEMO';
+  if (!codigos.find(c => c.codigo === 'EMP-DEMO')) {
+    codigos.push({ id: 'demo-emp', nombre: 'Demo Empresa', tipo: 'empresa', codigo: 'EMP-DEMO' });
+    guardar();
+  }
+  verificarCodigo();
+}
 
 // ── ADMIN ──
 function mostrarAdmin() {
@@ -747,9 +778,9 @@ function salirAdmin() {
   document.getElementById('login').classList.add('active');
 }
 
-function verificarAdmin() {
+async function verificarAdmin() {
   const pass = document.getElementById('admin-pass').value;
-  if (pass !== ADMIN_PASS) { toast('❌ Contraseña incorrecta'); return; }
+  if (await sha256(pass) !== ADMIN_PASS_HASH) { toast('❌ Contraseña incorrecta'); return; }
   document.getElementById('admin-codigos').style.display = 'block';
   renderCodigos();
 }
@@ -758,7 +789,7 @@ function crearCodigo() {
   const nombre = document.getElementById('cod-nombre').value.trim();
   const tipo = document.getElementById('cod-tipo').value;
   let custom = document.getElementById('cod-custom').value.trim().toUpperCase();
-  if (!nombre) { toast('⚠️ Escribí el nombre del cliente'); return; }
+  if (!nombre) { toast('⚠️ Escribe el nombre del cliente'); return; }
   if (!custom) {
     const prefix = tipo === 'empresa' ? 'EMP' : 'REP';
     custom = prefix + '-' + Math.random().toString(36).substring(2,6).toUpperCase();
@@ -784,8 +815,8 @@ function renderCodigos() {
   c.innerHTML = codigos.map(cod => `
     <div class="pedido-item">
       <div class="pedido-info">
-        <div class="pedido-id">${cod.tipo === 'empresa' ? '🏢' : '🛵'} ${cod.nombre}</div>
-        <div class="pedido-dest" style="font-family:monospace;font-size:1rem;color:var(--orange2);letter-spacing:2px">${cod.codigo}</div>
+        <div class="pedido-id">${cod.tipo === 'empresa' ? '🏢' : '🛵'} ${esc(cod.nombre)}</div>
+        <div class="pedido-dest" style="font-family:monospace;font-size:1rem;color:var(--orange2);letter-spacing:2px">${esc(cod.codigo)}</div>
         <div class="pedido-dest">${cod.tipo === 'empresa' ? 'Acceso Empresa' : 'Acceso Repartidor'}</div>
       </div>
       <button class="btn-sm red" onclick="eliminarCodigo('${cod.id}')">Borrar</button>
@@ -805,6 +836,10 @@ function volver() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('login').classList.add('active');
   document.getElementById('inp-codigo').value = '';
+  // Al salir, el próximo repartidor debe volver a elegir su nombre
+  repActual = null;
+  document.getElementById('rep-selector-card').style.display = 'block';
+  document.getElementById('rep-panel').style.display = 'none';
 }
 
 // ── TABS ──
@@ -846,16 +881,16 @@ function statusLabel(s) {
 function renderPedidos() {
   const c = document.getElementById('lista-pedidos');
   if (!pedidos.length) {
-    c.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>No hay pedidos.<br>Creá el primero en "Nuevo pedido"</p></div>`;
+    c.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>No hay pedidos.<br>Crea el primero en "Nuevo pedido"</p></div>`;
     return;
   }
   c.innerHTML = pedidos.slice().reverse().map(p => `
     <div class="pedido-item">
       <div class="pedido-info">
-        <div class="pedido-id">#${p.id} · ${p.cliente}</div>
-        <div class="pedido-dest">📍 ${p.direccion}</div>
-        <div class="pedido-dest">📦 ${p.descripcion}</div>
-        ${p.repartidor ? `<div class="pedido-repartidor">🛵 ${p.repartidor}</div>` : ''}
+        <div class="pedido-id">#${esc(p.id)} · ${esc(p.cliente)}</div>
+        <div class="pedido-dest">📍 ${esc(p.direccion)}</div>
+        ${p.descripcion ? `<div class="pedido-dest">📦 ${esc(p.descripcion)}</div>` : ''}
+        ${p.repartidor ? `<div class="pedido-repartidor">🛵 ${esc(p.repartidor)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
         <span class="status-badge status-${p.estado}">${statusLabel(p.estado)}</span>
@@ -875,7 +910,7 @@ function crearPedido() {
   const telefono = document.getElementById('inp-telefono').value.trim();
   const repartidor = document.getElementById('inp-repartidor').value;
 
-  if (!cliente || !direccion) { toast('⚠️ Completá cliente y dirección'); return; }
+  if (!cliente || !direccion) { toast('⚠️ Completa cliente y dirección'); return; }
 
   const id = Date.now().toString().slice(-6);
   pedidos.push({ id, cliente, direccion, descripcion, telefono, repartidor, estado:'pendiente', fecha: new Date().toLocaleDateString('es') });
@@ -921,7 +956,7 @@ function confirmarEstado() {
 function agregarRepartidor() {
   const nombre = document.getElementById('inp-nombre-rep').value.trim();
   const tel = document.getElementById('inp-tel-rep').value.trim();
-  if (!nombre) { toast('⚠️ Escribí el nombre'); return; }
+  if (!nombre) { toast('⚠️ Escribe el nombre'); return; }
   repartidores.push({ id: Date.now().toString(), nombre, tel });
   guardar();
   document.getElementById('inp-nombre-rep').value = '';
@@ -934,14 +969,14 @@ function agregarRepartidor() {
 function renderRepartidoresLista() {
   const c = document.getElementById('lista-repartidores');
   if (!repartidores.length) {
-    c.innerHTML = `<div class="empty"><div class="empty-icon">🛵</div><p>No hay repartidores.<br>Agregá el primero arriba.</p></div>`;
+    c.innerHTML = `<div class="empty"><div class="empty-icon">🛵</div><p>No hay repartidores.<br>Agrega el primero arriba.</p></div>`;
     return;
   }
   c.innerHTML = repartidores.map(r => `
     <div class="pedido-item">
       <div class="pedido-info">
-        <div class="pedido-id">🛵 ${r.nombre}</div>
-        ${r.tel ? `<div class="pedido-dest">📞 ${r.tel}</div>` : ''}
+        <div class="pedido-id">🛵 ${esc(r.nombre)}</div>
+        ${r.tel ? `<div class="pedido-dest">📞 ${esc(r.tel)}</div>` : ''}
       </div>
       <button class="btn-sm red" onclick="eliminarRepartidor('${r.id}')">Borrar</button>
     </div>
@@ -957,14 +992,14 @@ function eliminarRepartidor(id) {
 function actualizarSelectRepartidor() {
   const sel = document.getElementById('inp-repartidor');
   sel.innerHTML = '<option value="">Sin asignar</option>' +
-    repartidores.map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
+    repartidores.map(r => `<option value="${esc(r.nombre)}">${esc(r.nombre)}</option>`).join('');
 }
 
 // ── REPARTIDOR ──
 function renderRepartidor() {
   const sel = document.getElementById('sel-repartidor');
-  sel.innerHTML = '<option value="">Elegí tu nombre...</option>' +
-    repartidores.map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
+  sel.innerHTML = '<option value="">Elige tu nombre...</option>' +
+    repartidores.map(r => `<option value="${esc(r.nombre)}">${esc(r.nombre)}</option>`).join('');
   if (!repartidores.length) {
     sel.innerHTML = '<option value="">No hay repartidores registrados</option>';
   }
@@ -972,7 +1007,7 @@ function renderRepartidor() {
 
 function seleccionarRep() {
   const val = document.getElementById('sel-repartidor').value;
-  if (!val) { toast('⚠️ Elegí tu nombre'); return; }
+  if (!val) { toast('⚠️ Elige tu nombre'); return; }
   repActual = val;
   document.getElementById('rep-selector-card').style.display = 'none';
   document.getElementById('rep-panel').style.display = 'block';
@@ -989,7 +1024,7 @@ function renderEntregas() {
   document.getElementById('rep-stat-entregado').textContent = misPedidos.filter(p=>p.estado==='entregado').length;
 
   if (!misPedidos.length) {
-    c.innerHTML = `<div class="empty"><div class="empty-icon">🎉</div><p>No tenés pedidos asignados hoy.</p></div>`;
+    c.innerHTML = `<div class="empty"><div class="empty-icon">🎉</div><p>No tienes pedidos asignados hoy.</p></div>`;
     return;
   }
 
@@ -997,28 +1032,28 @@ function renderEntregas() {
     <div class="entrega-card">
       <div class="entrega-header">
         <div>
-          <div class="entrega-num">#${p.id}</div>
-          <div style="color:var(--muted);font-size:.82rem">${p.fecha || ''}</div>
+          <div class="entrega-num">#${esc(p.id)}</div>
+          <div style="color:var(--muted);font-size:.82rem">${esc(p.fecha)}</div>
         </div>
         <span class="status-badge status-${p.estado}">${statusLabel(p.estado)}</span>
       </div>
       <div class="entrega-datos">
         <div class="dato">
           <div class="dato-icon">👤</div>
-          <div><div class="dato-label">Cliente</div><div class="dato-text">${p.cliente}</div></div>
+          <div><div class="dato-label">Cliente</div><div class="dato-text">${esc(p.cliente)}</div></div>
         </div>
         <div class="dato">
           <div class="dato-icon">📍</div>
-          <div><div class="dato-label">Dirección</div><div class="dato-text">${p.direccion}</div></div>
+          <div><div class="dato-label">Dirección</div><div class="dato-text">${esc(p.direccion)}</div></div>
         </div>
-        ${p.descripcion ? `<div class="dato"><div class="dato-icon">📦</div><div><div class="dato-label">Descripción</div><div class="dato-text">${p.descripcion}</div></div></div>` : ''}
-        ${p.telefono ? `<div class="dato"><div class="dato-icon">📞</div><div><div class="dato-label">Teléfono</div><div class="dato-text">${p.telefono}</div></div></div>` : ''}
+        ${p.descripcion ? `<div class="dato"><div class="dato-icon">📦</div><div><div class="dato-label">Descripción</div><div class="dato-text">${esc(p.descripcion)}</div></div></div>` : ''}
+        ${p.telefono ? `<div class="dato"><div class="dato-icon">📞</div><div><div class="dato-label">Teléfono</div><div class="dato-text">${esc(p.telefono)}</div></div></div>` : ''}
       </div>
       <div class="entrega-actions">
         ${p.estado === 'pendiente' ? `<button class="btn btn-primary" style="flex:1;padding:11px" onclick="cambiarEstadoRep('${p.id}','en-camino')">🚚 Salir a entregar</button>` : ''}
         ${p.estado === 'en-camino' ? `<button class="btn btn-primary" style="flex:1;padding:11px;background:linear-gradient(90deg,#16a34a,#22c55e)" onclick="cambiarEstadoRep('${p.id}','entregado')">✅ Marcar entregado</button>` : ''}
         ${p.estado === 'entregado' ? `<div style="color:var(--green);font-weight:600;font-size:.9rem">✅ Entrega completada</div>` : ''}
-        ${p.telefono ? `<a href="tel:${p.telefono}" class="btn-sm blue" style="text-decoration:none;padding:11px 16px">📞 Llamar</a>` : ''}
+        ${p.telefono ? `<a href="tel:${esc(p.telefono.replace(/[^\d+]/g, ''))}" class="btn-sm blue" style="text-decoration:none;padding:11px 16px">📞 Llamar</a>` : ''}
       </div>
     </div>
   `).join('');
