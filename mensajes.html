@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Mensajes de venta – Fullentrega (uso interno)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#080c14; --card:#101624; --border:#1c2a40; --orange:#ff6b2b; --orange2:#ff9a5c; --text:#eef2ff; --muted:#6b7fa3; --green:#22c55e; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; padding:32px 16px; }
+  .wrap { max-width:720px; margin:0 auto; }
+  .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; color:var(--orange2); margin-bottom:24px; }
+  .wa-box { background:linear-gradient(135deg,#0a1f0f,#0f2918); border:1px solid rgba(34,197,94,.2); border-radius:24px; padding:32px 24px; }
+  h1 { font-family:'Syne',sans-serif; font-size:1.4rem; margin-bottom:8px; }
+  .wa-box > p { color:var(--muted); font-size:.92rem; margin-bottom:24px; }
+  .msg-tabs { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .tab { padding:8px 18px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--muted); font-family:inherit; font-size:.86rem; cursor:pointer; }
+  .tab.active, .tab:hover { background:rgba(34,197,94,.1); border-color:var(--green); color:var(--green); }
+  .msg-box { background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.07); border-radius:16px; padding:20px; font-size:.92rem; line-height:1.75; white-space:pre-wrap; margin-bottom:20px; }
+  .wa-actions { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  .wa-btn { padding:12px 22px; border-radius:12px; border:none; cursor:pointer; font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700; text-decoration:none; }
+  .wa-btn.copy { background:rgba(255,255,255,.07); color:var(--text); border:1px solid var(--border); }
+  .wa-btn.send { background:#25d366; color:#fff; }
+  .copied { display:none; color:var(--green); font-weight:600; font-size:.85rem; }
+  .copied.show { display:inline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">⚡ Fullentrega · uso interno</div>
+  <div class="wa-box">
+    <h1>💬 Mensajes listos para enviar</h1>
+    <p>Copia el mensaje y envíalo por WhatsApp a restaurantes y negocios. Esta página no aparece en Google.</p>
+    <div class="msg-tabs">
+      <button class="tab active" onclick="showMsg(0, this)">1 · Directo</button>
+      <button class="tab" onclick="showMsg(1, this)">2 · Con urgencia</button>
+      <button class="tab" onclick="showMsg(2, this)">3 · Para empresas</button>
+    </div>
+    <div class="msg-box" id="msgBox"></div>
+    <div class="wa-actions">
+      <button class="wa-btn copy" onclick="copyMsg()">📋 Copiar mensaje</button>
+      <a class="wa-btn send" id="waLink" href="#" target="_blank" rel="noopener">📲 Abrir en WhatsApp</a>
+      <span class="copied" id="copied">✓ ¡Copiado!</span>
+    </div>
+  </div>
+</div>
+<script>
+const msgs = [
+  `¡Hola! 👋 Te cuento sobre *Fullentrega*, una app para gestionar las entregas de tu negocio 🚚\n\n✅ Sin instalar nada\n✅ Panel para la empresa y para los repartidores\n✅ Estado de cada pedido: pendiente, en camino o entregado\n\n💰 Planes desde US$15 al mes\n\n🔗 Pruébala gratis: https://fullentrega.vercel.app\n\n¿Te interesa? ¡Te cuento más! 😊`,
+  `¡Hola! 🚀 ¿Gestionas entregas y pierdes tiempo con llamadas y papeles?\n\n*Fullentrega* lo resuelve:\n📦 Asignas pedidos a tus repartidores en segundos\n🛵 Cada repartidor ve sus entregas del día\n📊 Tienes todo organizado en un solo lugar\n\n🆓 Prueba gratis\n💰 Después, desde US$15 al mes\n\n👉 https://fullentrega.vercel.app\n\n¿Partimos?`,
+  `¡Hola! 👋 Si tienes un negocio con despachos, esto te va a interesar.\n\n*Fullentrega* es una app para gestionar repartidores y pedidos:\n✅ Panel de empresa y de repartidor\n✅ Sin instalar nada\n✅ Desde US$15 al mes\n\n🎁 Pruébala gratis: https://fullentrega.vercel.app\n\n¿Te la muestro? 🚛`
+];
+let actual = 0;
+function showMsg(i, btn) {
+  actual = i;
+  document.getElementById('msgBox').textContent = msgs[i];
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('waLink').href = 'https://wa.me/?text=' + encodeURIComponent(msgs[i]);
+}
+function copyMsg() {
+  navigator.clipboard.writeText(msgs[actual]).then(() => {
+    const c = document.getElementById('copied');
+    c.classList.add('show');
+    setTimeout(() => c.classList.remove('show'), 2000);
+  });
+}
+showMsg(0);
+</script>
+</body>
+</html>
