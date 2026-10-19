@@ -1,0 +1,8 @@
+{
+  "cleanUrls": true,
+  "redirects": [
+    { "source": "/Precios.html", "destination": "/#planes", "permanent": true },
+    { "source": "/Precios", "destination": "/#planes", "permanent": true },
+    { "source": "/precios", "destination": "/#planes", "permanent": true }
+  ]
+}
